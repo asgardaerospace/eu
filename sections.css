@@ -120,6 +120,115 @@
 
 @media (max-width: 900px) { .phases { grid-template-columns: 1fr 1fr; } .phase { border-right: 0; border-bottom: 1px solid var(--line); } }
 
+/* ---- Execution Principle / System Doctrine ---- */
+.doctrine {
+  margin-top: clamp(72px, 10vw, 128px);
+  margin-bottom: clamp(24px, 5vw, 56px);
+  display: flex; justify-content: center;
+}
+.doctrine-panel {
+  position: relative;
+  width: 100%; max-width: 960px;
+  padding: clamp(40px, 5vw, 72px) clamp(32px, 5vw, 80px);
+  background:
+    radial-gradient(120% 80% at 50% 0%, oklch(72% 0.14 235 / 0.05), transparent 60%),
+    linear-gradient(180deg, oklch(17% 0.010 250 / 0.55), oklch(14% 0.010 250 / 0.35));
+  background-image:
+    radial-gradient(120% 80% at 50% 0%, oklch(72% 0.14 235 / 0.05), transparent 60%),
+    linear-gradient(180deg, oklch(17% 0.010 250 / 0.55), oklch(14% 0.010 250 / 0.35)),
+    linear-gradient(var(--line-faint) 1px, transparent 1px),
+    linear-gradient(90deg, var(--line-faint) 1px, transparent 1px);
+  background-size: auto, auto, 48px 48px, 48px 48px;
+  background-position: center, center, center, center;
+  border: 1px solid var(--line);
+  box-shadow:
+    0 0 0 1px oklch(72% 0.14 235 / 0.06) inset,
+    0 40px 80px -40px oklch(11% 0.008 250 / 0.9);
+  overflow: hidden;
+}
+.doctrine-panel::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(60% 40% at 50% 50%, transparent, oklch(11% 0.008 250 / 0.55));
+}
+.doctrine-corner {
+  position: absolute; width: 14px; height: 14px; pointer-events: none;
+  border-color: var(--accent); opacity: 0.75;
+}
+.doctrine-corner.tl { top: 10px; left: 10px; border-top: 1px solid; border-left: 1px solid; }
+.doctrine-corner.tr { top: 10px; right: 10px; border-top: 1px solid; border-right: 1px solid; }
+.doctrine-corner.bl { bottom: 10px; left: 10px; border-bottom: 1px solid; border-left: 1px solid; }
+.doctrine-corner.br { bottom: 10px; right: 10px; border-bottom: 1px solid; border-right: 1px solid; }
+
+.doctrine-head {
+  position: relative; z-index: 1;
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--f-mono); font-size: 10.5px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: clamp(28px, 4vw, 44px);
+}
+.doctrine-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 10px var(--accent);
+  animation: doctrinePulse 2.8s ease-in-out infinite;
+}
+.doctrine-label { color: var(--text-hi); }
+.doctrine-id { margin-left: auto; color: var(--text-faint); letter-spacing: 0.18em; }
+
+.doctrine-quote {
+  position: relative; z-index: 1;
+  font-family: var(--f-display);
+  font-weight: 500;
+  font-size: clamp(22px, 2.6vw, 30px);
+  line-height: 1.22;
+  letter-spacing: -0.015em;
+  color: var(--text-hi);
+  text-wrap: balance;
+}
+.doctrine-quote .q-mark {
+  position: absolute; top: -0.35em; left: -0.4em;
+  font-size: 2.4em; line-height: 1; color: var(--accent);
+  opacity: 0.35; font-family: var(--f-display);
+}
+.doctrine-quote em {
+  font-style: normal; color: var(--accent);
+  background: linear-gradient(180deg, transparent 82%, oklch(72% 0.14 235 / 0.18) 82%);
+  padding: 0 0.05em;
+  animation: doctrineGlow 4s ease-in-out infinite;
+}
+.doctrine-break {
+  display: block; height: clamp(14px, 1.8vw, 22px);
+}
+
+.doctrine-foot {
+  position: relative; z-index: 1;
+  margin-top: clamp(32px, 4vw, 48px);
+  display: flex; align-items: center; gap: 16px;
+}
+.doctrine-rule {
+  flex: 0 0 40px; height: 1px; background: var(--line-strong);
+}
+.doctrine-reinforce {
+  font-family: var(--f-mono); font-size: 11px;
+  color: var(--text-faint); letter-spacing: 0.06em;
+  line-height: 1.5;
+}
+
+@keyframes doctrinePulse {
+  0%, 100% { opacity: 0.55; box-shadow: 0 0 6px var(--accent); }
+  50% { opacity: 1; box-shadow: 0 0 14px var(--accent); }
+}
+@keyframes doctrineGlow {
+  0%, 100% { text-shadow: 0 0 0 transparent; }
+  50% { text-shadow: 0 0 18px oklch(72% 0.14 235 / 0.35); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .doctrine-dot, .doctrine-quote em { animation: none; }
+}
+@media (max-width: 700px) {
+  .doctrine-id { display: none; }
+  .doctrine-quote br { display: none; }
+}
+
 /* ---- Why Now timing strip ---- */
 .timing-row {
   display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;

@@ -106,11 +106,35 @@ function UsExecution() {
           ))}
         </div>
 
-        <div style={{marginTop: 40, display: "grid", gridTemplateColumns: "1fr 2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--line)"}}>
-          <div className="coord">Execution principle</div>
-          <p style={{fontSize: 17, color: "var(--text-hi)", fontFamily: "var(--f-display)", lineHeight: 1.3, letterSpacing: "-0.01em", maxWidth: "52ch"}}>
-            "Capital deployment will follow validated throughput, not speculative demand. Each layer, platform, network, and facility, must be operationally proven before the next is deployed."
-          </p>
+        <div className="doctrine">
+          <div className="doctrine-panel">
+            <span className="doctrine-corner tl" aria-hidden="true" />
+            <span className="doctrine-corner tr" aria-hidden="true" />
+            <span className="doctrine-corner bl" aria-hidden="true" />
+            <span className="doctrine-corner br" aria-hidden="true" />
+
+            <div className="doctrine-head">
+              <span className="doctrine-dot" aria-hidden="true" />
+              <span className="doctrine-label">System Doctrine</span>
+              <span className="doctrine-id">// 04 · EXEC-PRINCIPLE</span>
+            </div>
+
+            <blockquote className="doctrine-quote">
+              <span className="q-mark" aria-hidden="true">“</span>
+              Capital deployment will follow <em>validated throughput</em>,
+              <br/>not speculative demand.
+              <span className="doctrine-break" aria-hidden="true" />
+              Each layer, platform, network, and facility,
+              <br/>must be <em>operationally proven</em> before the next is deployed.
+            </blockquote>
+
+            <div className="doctrine-foot">
+              <span className="doctrine-rule" aria-hidden="true" />
+              <p className="doctrine-reinforce">
+                This model governs how the platform scales across regions, facilities, and programs.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
