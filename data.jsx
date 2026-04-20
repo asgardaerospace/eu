@@ -59,11 +59,21 @@ const REGIONS_DATA = [
 ];
 
 const PHASES_US = [
-  { id: "P1", title: "Platform & team formation", desc: "Launchbelt architecture defined; core operational leadership assembled.", progress: 100 },
-  { id: "P2", title: "Supplier network activation", desc: "Capability-mapped onboarding of qualified manufacturing partners.", progress: 100 },
-  { id: "P3", title: "Routed production validation", desc: "Multi-node coordinated production with continuous certification continuity.", progress: 100 },
-  { id: "P4", title: "Forge activation", desc: "First controlled integration facility deployed against validated routing density.", progress: 85 },
-  { id: "P5", title: "Scale & density expansion", desc: "Throughput-driven growth in program count, supplier density, and Forge capacity.", progress: 40 },
+  { id: "P1", title: "Platform & team formation",
+    objective: "Define system architecture and assemble the core operational leadership team.",
+    gate: "Launchbelt routing framework and operational doctrine established." },
+  { id: "P2", title: "Supplier network activation",
+    objective: "Capability-map and onboard qualified manufacturing partners into the routing layer.",
+    gate: "Certified supplier pool integrated under shared compliance continuity." },
+  { id: "P3", title: "Routed production validation",
+    objective: "Prove multi-node coordinated production with continuous certification across handoffs.",
+    gate: "Sustained throughput across distributed suppliers under a single configuration authority." },
+  { id: "P4", title: "Forge activation",
+    objective: "Deploy the first controlled integration facility against validated routing density.",
+    gate: "Forge operational capacity aligned to demonstrated network throughput." },
+  { id: "P5", title: "Scale & density expansion",
+    objective: "Grow program count, supplier density, and Forge capacity against validated demand.",
+    gate: "Expansion triggered only by sustained throughput, never forecast." },
 ];
 
 const PHASES_EU = [

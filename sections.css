@@ -37,6 +37,22 @@
 }
 .future .prob-list li::before { background: var(--accent); }
 
+.prob-canvas svg { display: block; overflow: visible; }
+.prob-canvas .frag-node,
+.prob-canvas .coord-node { cursor: default; transition: none; }
+.prob-canvas.frag .frag-node:hover circle:first-of-type {
+  fill: var(--alert); opacity: 0.85 !important;
+}
+.prob-canvas.frag .frag-node:hover circle:last-of-type {
+  stroke: var(--alert); opacity: 0.55;
+}
+.prob-canvas.coord .coord-node:hover circle:first-of-type {
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+.prob-canvas.coord .coord-node.t2:hover circle:last-of-type {
+  opacity: 0.75; stroke-width: 1;
+}
+
 @media (max-width: 900px) { .prob-split { grid-template-columns: 1fr; } .prob-panel + .prob-panel { border-left: 0; border-top: 1px solid var(--line); } }
 
 /* ---- Asgard model diagram ---- */
@@ -91,12 +107,15 @@
   min-height: 42px;
 }
 .phase p { font-size: 13px; color: var(--text-dim); line-height: 1.45; }
-.phase .track {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--line-faint);
+.phase .phase-field { margin-top: 16px; }
+.phase .phase-field + .phase-field {
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px dashed var(--line);
 }
-.phase .track::after {
-  content: ""; position: absolute; top: 0; left: 0; height: 100%; background: var(--accent);
-  width: var(--p, 100%);
+.phase .phase-lbl {
+  font-family: var(--f-mono); font-size: 9.5px;
+  color: var(--text-faint); letter-spacing: 0.16em;
+  text-transform: uppercase; margin-bottom: 6px;
 }
 
 @media (max-width: 900px) { .phases { grid-template-columns: 1fr 1fr; } .phase { border-right: 0; border-bottom: 1px solid var(--line); } }

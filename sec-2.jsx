@@ -84,9 +84,9 @@ function UsExecution() {
   return (
     <section className="sec-pad" id="execution" style={{background: "var(--bg-base)"}}>
       <div className="shell">
-        <SecHead tag="04 · U.S. Execution Logic" meta="Proven · Sequenced · Gated"
-          title="Physical scale is earned through validated production flow."
-          lede="The European deployment inherits an operating discipline proven in the U.S. Each phase is gated by operational proof, not by projection or hype. Capital and facility expansion follow validated throughput, not speculative demand."
+        <SecHead tag="04 · Production-Driven Execution Model" meta="Sequenced · Gated · Validated"
+          title="Physical scale will be earned through validated production flow."
+          lede="This model defines how the platform scales. Execution progresses only after each layer is validated under real production conditions. Platform capability, supplier integration, and facility expansion are sequenced against operational proof, not projection."
         />
 
         <div className="phases">
@@ -94,19 +94,22 @@ function UsExecution() {
             <div className="phase" key={p.id}>
               <div className="num"><span>{p.id}</span><strong>PHASE</strong></div>
               <h5>{p.title}</h5>
-              <p>{p.desc}</p>
-              <div style={{marginTop: 20, fontFamily: "var(--f-mono)", fontSize: 10, color: "var(--text-faint)", letterSpacing: "0.14em"}}>
-                {p.progress}% complete
+              <div className="phase-field">
+                <div className="phase-lbl">Objective</div>
+                <p>{p.objective}</p>
               </div>
-              <div className="track" style={{"--p": p.progress + "%"}}/>
+              <div className="phase-field">
+                <div className="phase-lbl">Validation gate</div>
+                <p>{p.gate}</p>
+              </div>
             </div>
           ))}
         </div>
 
         <div style={{marginTop: 40, display: "grid", gridTemplateColumns: "1fr 2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--line)"}}>
           <div className="coord">Execution principle</div>
-          <p style={{fontSize: 17, color: "var(--text-hi)", fontFamily: "var(--f-display)", lineHeight: 1.3, letterSpacing: "-0.01em", maxWidth: "50ch"}}>
-            "Capital deployment follows validated throughput, not speculative demand. Each layer, platform, network, facility, is operationally proven before the next is deployed."
+          <p style={{fontSize: 17, color: "var(--text-hi)", fontFamily: "var(--f-display)", lineHeight: 1.3, letterSpacing: "-0.01em", maxWidth: "52ch"}}>
+            "Capital deployment will follow validated throughput, not speculative demand. Each layer, platform, network, and facility, must be operationally proven before the next is deployed."
           </p>
         </div>
       </div>

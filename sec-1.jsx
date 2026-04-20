@@ -161,8 +161,83 @@ function ExecOverview() {
 }
 
 // ============================================================
-// PROBLEM
+// PROBLEM — living execution matrix
 // ============================================================
+function probSeed(n) {
+  const x = Math.sin(n * 12.9898 + 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+// Fragmented panel: jittered grid, deterministic per-node timings
+const FRAG_NODES = (() => {
+  const cols = 8, rows = 4, nodes = [];
+  for (let i = 0; i < cols * rows; i++) {
+    const col = i % cols, row = Math.floor(i / cols);
+    const jx = (probSeed(i + 1) - 0.5) * 14;
+    const jy = (probSeed(i + 101) - 0.5) * 12;
+    const r = probSeed(i + 37);
+    nodes.push({
+      i,
+      x: 46 + col * 44 + jx,
+      y: 48 + row * 55 + jy,
+      base: 0.18 + probSeed(i + 17) * 0.38,
+      dur: (1.6 + probSeed(i + 29) * 3.2).toFixed(2),
+      begin: (probSeed(i + 53) * 4).toFixed(2),
+      flicker: probSeed(i + 71) < 0.22,
+      dead: r < 0.18,
+    });
+  }
+  return nodes;
+})();
+
+// Unsuccessful connection attempts: node pairs + phase offsets
+const FRAG_ATTEMPTS = [
+  [0, 10, 0.0], [3, 12, 0.7], [6, 14, 1.3], [9, 18, 2.1],
+  [15, 23, 0.3], [17, 26, 1.8], [20, 28, 2.6], [13, 22, 3.2],
+  [25, 31, 4.1], [4, 19, 4.7],
+].map(([a, b, d]) => ({ a, b, d: d.toFixed(2) }));
+
+// Coordinated panel: tiered matrix
+const COORD_CENTER = { x: 200, y: 128 };
+
+const COORD_T2 = Array.from({ length: 6 }, (_, i) => {
+  const ang = (i / 6) * Math.PI * 2 - Math.PI / 2;
+  return {
+    i, ang,
+    x: COORD_CENTER.x + Math.cos(ang) * 52,
+    y: COORD_CENTER.y + Math.sin(ang) * 52 * 0.92,
+  };
+});
+
+const COORD_T3 = Array.from({ length: 12 }, (_, i) => {
+  const ang = (i / 12) * Math.PI * 2 - Math.PI / 2 + Math.PI / 12;
+  const r = 104 + probSeed(i + 7) * 6;
+  return {
+    i, ang,
+    x: COORD_CENTER.x + Math.cos(ang) * r,
+    y: COORD_CENTER.y + Math.sin(ang) * r * 0.74,
+  };
+});
+
+// Tier-2 → nearest tier-3 (2 per tier-2)
+const COORD_T23 = (() => {
+  const out = [];
+  COORD_T3.forEach((n, ti) => {
+    let bestD = Infinity, bestI = 0;
+    COORD_T2.forEach((m, j) => {
+      const d = (n.x - m.x) ** 2 + (n.y - m.y) ** 2;
+      if (d < bestD) { bestD = d; bestI = j; }
+    });
+    out.push({ t3: ti, t2: bestI });
+  });
+  return out;
+})();
+
+// Tier-3 lateral cross-links (intelligent, not random)
+const COORD_T3LAT = [[0, 1], [3, 4], [6, 7], [9, 10], [2, 11], [5, 8]];
+// Tier-2 ring lateral
+const COORD_T2RING = Array.from({ length: 6 }, (_, i) => [i, (i + 1) % 6]);
+
 function Problem() {
   return (
     <section className="sec-pad" id="problem" style={{background: "var(--bg-base)"}}>
@@ -176,16 +251,65 @@ function Problem() {
           <div className="prob-panel now">
             <div className="label">Current state · Fragmented</div>
             <h3>Distributed capability, uncoordinated execution</h3>
-            <div className="prob-canvas">
-              <svg viewBox="0 0 400 260" width="100%" height="100%">
-                {Array.from({length: 28}).map((_, i) => {
-                  const x = 40 + (i % 7) * 52 + (i % 3) * 6;
-                  const y = 40 + Math.floor(i / 7) * 52 + (i % 2) * 4;
-                  return <g key={i}>
-                    <circle cx={x} cy={y} r="4" fill="var(--text-dim)" opacity={0.4 + Math.random() * 0.5}/>
-                    <circle cx={x} cy={y} r="7" fill="none" stroke="var(--line-strong)" strokeWidth="0.5" opacity="0.4"/>
-                  </g>;
+            <div className="prob-canvas frag">
+              <svg viewBox="0 0 400 260" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <radialGradient id="fragDead" cx="50%" cy="50%" r="60%">
+                    <stop offset="0%" stopColor="var(--line-strong)" stopOpacity="0.18"/>
+                    <stop offset="100%" stopColor="var(--line-strong)" stopOpacity="0"/>
+                  </radialGradient>
+                </defs>
+
+                {/* idle-capacity dead zones */}
+                <ellipse cx="88" cy="195" rx="74" ry="42" fill="url(#fragDead)" opacity="0.45"/>
+                <ellipse cx="312" cy="62" rx="58" ry="36" fill="url(#fragDead)" opacity="0.35"/>
+
+                {/* unsuccessful connection attempts — brief, never stabilize */}
+                {FRAG_ATTEMPTS.map(({ a, b, d }, k) => {
+                  const A = FRAG_NODES[a], B = FRAG_NODES[b];
+                  if (!A || !B) return null;
+                  return (
+                    <line key={`att-${k}`}
+                      x1={A.x} y1={A.y} x2={B.x} y2={B.y}
+                      stroke="var(--text-faint)" strokeWidth="0.5"
+                      strokeDasharray="3 4" opacity="0">
+                      <animate attributeName="opacity"
+                        values="0;0.28;0.18;0" keyTimes="0;0.18;0.55;1"
+                        dur="2.4s" begin={`${d}s`} repeatCount="indefinite"/>
+                      <animate attributeName="stroke-dashoffset"
+                        values="0;-14" dur="2.4s" begin={`${d}s`} repeatCount="indefinite"/>
+                    </line>
+                  );
                 })}
+
+                {/* nodes — asynchronous pulse, flicker, dim subset */}
+                {FRAG_NODES.map(n => {
+                  const vals = n.flicker
+                    ? `${n.base};${(n.base * 0.25).toFixed(3)};${n.base};${(n.base * 0.15).toFixed(3)};${(n.base * 0.9).toFixed(3)};${n.base}`
+                    : `${n.base};${(n.base * 1.3).toFixed(3)};${(n.base * 0.55).toFixed(3)};${n.base}`;
+                  const kt = n.flicker ? "0;0.08;0.18;0.32;0.55;1" : "0;0.4;0.7;1";
+                  const fill = n.dead ? "var(--line-strong)" : "var(--text-dim)";
+                  return (
+                    <g key={n.i} className="frag-node">
+                      <circle cx={n.x} cy={n.y} r="3.4" fill={fill} opacity={n.base}>
+                        {!n.dead && (
+                          <animate attributeName="opacity"
+                            values={vals} keyTimes={kt}
+                            dur={`${n.dur}s`} begin={`${n.begin}s`} repeatCount="indefinite"/>
+                        )}
+                      </circle>
+                      <circle cx={n.x} cy={n.y} r="6.5" fill="none"
+                        stroke="var(--line)" strokeWidth="0.4"
+                        opacity={n.dead ? 0.15 : 0.28}/>
+                    </g>
+                  );
+                })}
+
+                <text x="200" y="246" textAnchor="middle"
+                  fontFamily="var(--f-mono)" fontSize="9"
+                  fill="var(--text-faint)" letterSpacing="1.6" opacity="0.55">
+                  UNROUTED CAPACITY
+                </text>
               </svg>
             </div>
             <ul className="prob-list">
@@ -199,29 +323,153 @@ function Problem() {
           <div className="prob-panel future">
             <div className="label">Asgard state · Coordinated</div>
             <h3>Distributed production, centralized control</h3>
-            <div className="prob-canvas">
-              <svg viewBox="0 0 400 260" width="100%" height="100%">
+            <div className="prob-canvas coord">
+              <svg viewBox="0 0 400 260" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
                 <defs>
-                  <radialGradient id="pf" cx="50%" cy="50%" r="50%">
+                  <radialGradient id="pf" cx="50%" cy="50%" r="55%">
                     <stop offset="0%" stopColor="oklch(72% 0.14 235)" stopOpacity="0.3"/>
+                    <stop offset="55%" stopColor="oklch(72% 0.14 235)" stopOpacity="0.08"/>
                     <stop offset="100%" stopColor="oklch(72% 0.14 235)" stopOpacity="0"/>
                   </radialGradient>
+                  <filter id="coordGlow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="1.4" result="b"/>
+                    <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                  </filter>
                 </defs>
-                <circle cx="200" cy="130" r="80" fill="url(#pf)"/>
-                {Array.from({length: 28}).map((_, i) => {
-                  const x = 40 + (i % 7) * 52 + (i % 3) * 6;
-                  const y = 40 + Math.floor(i / 7) * 52 + (i % 2) * 4;
-                  return <g key={i}>
-                    <line x1={x} y1={y} x2="200" y2="130" stroke="var(--accent)" strokeWidth="0.4" opacity="0.25"/>
-                    <circle cx={x} cy={y} r="3.5" fill="var(--accent)" opacity="0.7"/>
-                  </g>;
+
+                <circle cx={COORD_CENTER.x} cy={COORD_CENTER.y} r="108" fill="url(#pf)"/>
+
+                {/* coordinated outward pulse waves */}
+                {[0, 1.6, 3.2].map((b, k) => (
+                  <circle key={`wave-${k}`}
+                    cx={COORD_CENTER.x} cy={COORD_CENTER.y}
+                    r="12" fill="none" stroke="var(--accent)" strokeWidth="0.6">
+                    <animate attributeName="r" values="12;105" dur="4.8s" begin={`${b}s`} repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.55;0" dur="4.8s" begin={`${b}s`} repeatCount="indefinite"/>
+                  </circle>
+                ))}
+
+                {/* persistent center → tier-2 routes */}
+                {COORD_T2.map(n => (
+                  <line key={`c2-${n.i}`}
+                    x1={COORD_CENTER.x} y1={COORD_CENTER.y} x2={n.x} y2={n.y}
+                    stroke="var(--accent)" strokeWidth="0.7" opacity="0.5"/>
+                ))}
+
+                {/* tier-2 ring (lateral orchestration) */}
+                {COORD_T2RING.map(([a, b], k) => (
+                  <line key={`t2r-${k}`}
+                    x1={COORD_T2[a].x} y1={COORD_T2[a].y}
+                    x2={COORD_T2[b].x} y2={COORD_T2[b].y}
+                    stroke="var(--accent)" strokeWidth="0.35"
+                    strokeDasharray="2 3" opacity="0.22"/>
+                ))}
+
+                {/* tier-2 → tier-3 routes */}
+                {COORD_T23.map(({ t3, t2 }, k) => (
+                  <line key={`t23-${k}`}
+                    x1={COORD_T2[t2].x} y1={COORD_T2[t2].y}
+                    x2={COORD_T3[t3].x} y2={COORD_T3[t3].y}
+                    stroke="var(--accent)" strokeWidth="0.45" opacity="0.32"/>
+                ))}
+
+                {/* tier-3 lateral cross-node routing */}
+                {COORD_T3LAT.map(([a, b], k) => (
+                  <line key={`t3l-${k}`}
+                    x1={COORD_T3[a].x} y1={COORD_T3[a].y}
+                    x2={COORD_T3[b].x} y2={COORD_T3[b].y}
+                    stroke="var(--accent)" strokeWidth="0.3"
+                    strokeDasharray="1 3" opacity="0.18"/>
+                ))}
+
+                {/* data pulses: center → tier-2 (outbound dispatch) */}
+                {COORD_T2.map((n, i) => {
+                  const begin = (i * 0.35).toFixed(2);
+                  return (
+                    <circle key={`flow-c2-${i}`} r="1.8" fill="var(--accent-hi)" opacity="0">
+                      <animateMotion
+                        path={`M ${COORD_CENTER.x} ${COORD_CENTER.y} L ${n.x} ${n.y}`}
+                        dur="2.4s" begin={`${begin}s`} repeatCount="indefinite"/>
+                      <animate attributeName="opacity"
+                        values="0;1;1;0" keyTimes="0;0.1;0.85;1"
+                        dur="2.4s" begin={`${begin}s`} repeatCount="indefinite"/>
+                    </circle>
+                  );
                 })}
-                <circle cx="200" cy="130" r="10" fill="var(--accent)" />
-                <circle cx="200" cy="130" r="18" fill="none" stroke="var(--accent)" strokeWidth="1" opacity="0.6">
-                  <animate attributeName="r" values="14;26;14" dur="2.5s" repeatCount="indefinite"/>
-                  <animate attributeName="opacity" values="0.7;0;0.7" dur="2.5s" repeatCount="indefinite"/>
+
+                {/* data pulses: tier-2 → tier-3 (propagation wave) */}
+                {COORD_T23.map(({ t3, t2 }, k) => {
+                  const begin = (k * 0.18 + 0.6).toFixed(2);
+                  return (
+                    <circle key={`flow-t23-${k}`} r="1.4" fill="var(--accent-hi)" opacity="0">
+                      <animateMotion
+                        path={`M ${COORD_T2[t2].x} ${COORD_T2[t2].y} L ${COORD_T3[t3].x} ${COORD_T3[t3].y}`}
+                        dur="2.8s" begin={`${begin}s`} repeatCount="indefinite"/>
+                      <animate attributeName="opacity"
+                        values="0;1;1;0" keyTimes="0;0.12;0.82;1"
+                        dur="2.8s" begin={`${begin}s`} repeatCount="indefinite"/>
+                    </circle>
+                  );
+                })}
+
+                {/* occasional routing burst: bidirectional returns from tier-2 to center */}
+                {COORD_T2.filter((_, i) => i % 2 === 0).map((n, i) => {
+                  const begin = (4.2 + i * 0.15).toFixed(2);
+                  return (
+                    <circle key={`flow-r-${i}`} r="1.3" fill="var(--accent-hi)" opacity="0">
+                      <animateMotion
+                        path={`M ${n.x} ${n.y} L ${COORD_CENTER.x} ${COORD_CENTER.y}`}
+                        dur="6s" begin={`${begin}s`} repeatCount="indefinite"/>
+                      <animate attributeName="opacity"
+                        values="0;0;1;1;0;0" keyTimes="0;0.05;0.12;0.22;0.3;1"
+                        dur="6s" begin={`${begin}s`} repeatCount="indefinite"/>
+                    </circle>
+                  );
+                })}
+
+                {/* tier-3 nodes — locked into system, synchronized wave pulse */}
+                {COORD_T3.map(n => (
+                  <g key={`t3n-${n.i}`} className="coord-node t3">
+                    <circle cx={n.x} cy={n.y} r="2.8" fill="var(--accent)" opacity="0.7">
+                      <animate attributeName="opacity"
+                        values="0.55;0.95;0.55" dur="3.2s"
+                        begin={`${(n.i * 0.08).toFixed(2)}s`} repeatCount="indefinite"/>
+                    </circle>
+                  </g>
+                ))}
+
+                {/* tier-2 nodes — primary handoffs */}
+                {COORD_T2.map(n => (
+                  <g key={`t2n-${n.i}`} className="coord-node t2">
+                    <circle cx={n.x} cy={n.y} r="4.6" fill="var(--accent)">
+                      <animate attributeName="opacity"
+                        values="0.8;1;0.8" dur="2.6s"
+                        begin={`${(n.i * 0.12).toFixed(2)}s`} repeatCount="indefinite"/>
+                    </circle>
+                    <circle cx={n.x} cy={n.y} r="7.6" fill="none"
+                      stroke="var(--accent)" strokeWidth="0.6" opacity="0.35"/>
+                  </g>
+                ))}
+
+                {/* tier-1 execution layer core */}
+                <circle cx={COORD_CENTER.x} cy={COORD_CENTER.y} r="11"
+                  fill="var(--accent)" filter="url(#coordGlow)"/>
+                <circle cx={COORD_CENTER.x} cy={COORD_CENTER.y} r="11"
+                  fill="none" stroke="var(--accent-hi)" strokeWidth="0.6" opacity="0.55">
+                  <animate attributeName="opacity"
+                    values="0.45;0.9;0.45" dur="3.6s" repeatCount="indefinite"/>
                 </circle>
-                <text x="200" y="210" textAnchor="middle" fontFamily="var(--f-mono)" fontSize="10" fill="var(--text-faint)" letterSpacing="1.5">UNIFIED EXECUTION LAYER</text>
+                <circle cx={COORD_CENTER.x} cy={COORD_CENTER.y} r="16"
+                  fill="none" stroke="var(--accent)" strokeWidth="1" opacity="0.7">
+                  <animate attributeName="r" values="14;22;14" dur="2.8s" repeatCount="indefinite"/>
+                  <animate attributeName="opacity" values="0.7;0.05;0.7" dur="2.8s" repeatCount="indefinite"/>
+                </circle>
+
+                <text x={COORD_CENTER.x} y="246" textAnchor="middle"
+                  fontFamily="var(--f-mono)" fontSize="9"
+                  fill="var(--text-faint)" letterSpacing="1.6">
+                  UNIFIED EXECUTION LAYER
+                </text>
               </svg>
             </div>
             <ul className="prob-list">
