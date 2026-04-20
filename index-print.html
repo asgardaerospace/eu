@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asgard Aerospace Europe · Continental Manufacturing Network</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="sections.css">
+  <style>
+    /* --- print overrides --- */
+    html, body { background: #0a0d12 !important; }
+    .nav { display: none !important; }
+    .scroll-ind { display: none !important; }
+    .reveal { opacity: 1 !important; transform: none !important; }
+    .blink, [class*="animate"] { animation: none !important; }
+    * { animation: none !important; transition: none !important; }
+
+    @media print {
+      @page { size: A3 portrait; margin: 10mm; }
+      html, body {
+        background: #0a0d12 !important;
+        color: #d0d4da !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      .nav, .scroll-ind { display: none !important; }
+      .hero { min-height: auto !important; padding: 40px 0 60px !important; page-break-after: always; }
+      section.sec-pad { padding: 48px 0 !important; page-break-inside: avoid; break-inside: avoid; }
+      .close-hero { padding: 80px 0 !important; page-break-before: always; }
+      .ftr { margin-top: 60px !important; padding: 40px 0 20px !important; page-break-before: avoid; }
+      .sec-head { page-break-after: avoid; break-after: avoid; }
+      .net-wrap, .facility, .compliance, .roadmap, .kb, .regions, .region-detail, .impact, .phases, .timing-row, .model-diagram, .ops-grid, .prob-split, .gov-grid {
+        page-break-inside: avoid; break-inside: avoid;
+      }
+      h1, h2, h3, h4, h5 { page-break-after: avoid; break-after: avoid; }
+      a { color: inherit !important; text-decoration: none !important; }
+      * { box-shadow: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <script type="text/babel" src="europe-map.jsx"></script>
+  <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="sec-1.jsx"></script>
+  <script type="text/babel" src="sec-2.jsx"></script>
+  <script type="text/babel" src="sec-3.jsx"></script>
+  <script type="text/babel" src="sec-4.jsx"></script>
+  <script type="text/babel" src="sec-5.jsx"></script>
+
+  <script type="text/babel">
+    function App() {
+      return (
+        <>
+          <Nav />
+          <Hero />
+          <ExecOverview />
+          <Problem />
+          <Model />
+          <UsExecution />
+          <WhyNow />
+          <Network />
+          <Regions />
+          <Facility />
+          <Operating />
+          <Security />
+          <Impact />
+          <Government />
+          <Roadmap />
+          <KnowledgeBase />
+          <Closing />
+          <Footer />
+        </>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+
+    (async () => {
+      try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+      await new Promise(r => setTimeout(r, 1200));
+      window.print();
+    })();
+  </script>
+</body>
+</html>

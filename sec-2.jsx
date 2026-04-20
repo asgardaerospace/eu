@@ -1,0 +1,158 @@
+/* global React, PHASES_US, SecHead, Eyebrow */
+const { useState: useState2, useEffect: useEffect2, useRef: useRef2 } = React;
+
+// ============================================================
+// ASGARD MODEL
+// ============================================================
+function Model() {
+  return (
+    <section className="sec-pad" id="model">
+      <div className="shell">
+        <SecHead tag="03 · The Asgard Model" meta="Route · Integrate · Control"
+          title="Three layers. One coordinated flow."
+          lede="Launchbelt routes. Forges integrate and control. Suppliers execute. Together they form a single operating system that converts distributed capability into certified, traceable throughput."
+        />
+
+        <div className="model-diagram">
+          <div className="model-layer orchestration">
+            <div>
+              <div className="lid">Layer 01 · Digital</div>
+              <div style={{fontFamily: "var(--f-mono)", fontSize: 11, color: "var(--accent)", marginTop: 4, letterSpacing: "0.1em"}}>LAUNCHBELT</div>
+            </div>
+            <div>
+              <h4><span className="bar"/>Routing & orchestration</h4>
+              <p className="desc">Constraint-driven routing engine. Parses assemblies into manufacturable components, maps material and certification requirements, and dispatches work across qualified facilities while preserving traceability, configuration state, and program isolation at every handoff.</p>
+              <div className="tech-row">
+                <span className="tag on">Routing</span>
+                <span className="tag on">Compliance</span>
+                <span className="tag on">Traceability</span>
+                <span className="tag on">Configuration</span>
+              </div>
+            </div>
+            <div style={{fontFamily: "var(--f-mono)", fontSize: 10, color: "var(--accent)", letterSpacing: "0.14em"}}>ACTIVE</div>
+          </div>
+
+          <div className="model-connector">┃ governs ┃</div>
+
+          <div className="model-layer forge">
+            <div>
+              <div className="lid">Layer 02 · Physical</div>
+              <div style={{fontFamily: "var(--f-mono)", fontSize: 11, color: "var(--signal)", marginTop: 4, letterSpacing: "0.1em"}}>ASGARD FORGE</div>
+            </div>
+            <div>
+              <h4><span className="bar"/>Control points of the system</h4>
+              <p className="desc">Forges are where the network commits. They converge supplier output into integrated assemblies, hold certification authority, enforce configuration control, and operate the secure cells where IP-sensitive and defense-aligned work executes. Every routed flow terminates at, or is gated by, a Forge.</p>
+              <div className="tech-row">
+                <span className="tag">Integration</span>
+                <span className="tag">Certification</span>
+                <span className="tag">IP Protection</span>
+                <span className="tag">Secure Cells</span>
+              </div>
+            </div>
+            <div style={{fontFamily: "var(--f-mono)", fontSize: 10, color: "var(--signal)", letterSpacing: "0.14em"}}>DEPLOY</div>
+          </div>
+
+          <div className="model-connector">┃ coordinates ┃</div>
+
+          <div className="model-layer network">
+            <div>
+              <div className="lid">Layer 03 · Network</div>
+              <div style={{fontFamily: "var(--f-mono)", fontSize: 11, color: "var(--text-dim)", marginTop: 4, letterSpacing: "0.1em"}}>SUPPLIER BASE</div>
+            </div>
+            <div>
+              <h4><span className="bar"/>The execution base</h4>
+              <p className="desc">Qualified regional manufacturers receive routed work orders with embedded travelers, specs, and compliance context. Thousands of certified facilities operate as coordinated executors of a continental flow, not as disconnected vendors chasing one-off orders.</p>
+              <div className="tech-row">
+                <span className="tag">Machining</span>
+                <span className="tag">Fabrication</span>
+                <span className="tag">Materials</span>
+                <span className="tag">Subsystems</span>
+              </div>
+            </div>
+            <div style={{fontFamily: "var(--f-mono)", fontSize: 10, color: "var(--text-dim)", letterSpacing: "0.14em"}}>ACTIVATE</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============================================================
+// U.S. EXECUTION LOGIC
+// ============================================================
+function UsExecution() {
+  return (
+    <section className="sec-pad" id="execution" style={{background: "var(--bg-base)"}}>
+      <div className="shell">
+        <SecHead tag="04 · U.S. Execution Logic" meta="Proven · Sequenced · Gated"
+          title="Physical scale is earned through validated production flow."
+          lede="The European deployment inherits an operating discipline proven in the U.S. Each phase is gated by operational proof, not by projection or hype. Capital and facility expansion follow validated throughput, not speculative demand."
+        />
+
+        <div className="phases">
+          {PHASES_US.map((p, i) => (
+            <div className="phase" key={p.id}>
+              <div className="num"><span>{p.id}</span><strong>PHASE</strong></div>
+              <h5>{p.title}</h5>
+              <p>{p.desc}</p>
+              <div style={{marginTop: 20, fontFamily: "var(--f-mono)", fontSize: 10, color: "var(--text-faint)", letterSpacing: "0.14em"}}>
+                {p.progress}% complete
+              </div>
+              <div className="track" style={{"--p": p.progress + "%"}}/>
+            </div>
+          ))}
+        </div>
+
+        <div style={{marginTop: 40, display: "grid", gridTemplateColumns: "1fr 2fr", gap: 48, padding: "32px 0", borderTop: "1px solid var(--line)"}}>
+          <div className="coord">Execution principle</div>
+          <p style={{fontSize: 17, color: "var(--text-hi)", fontFamily: "var(--f-display)", lineHeight: 1.3, letterSpacing: "-0.01em", maxWidth: "50ch"}}>
+            "Capital deployment follows validated throughput, not speculative demand. Each layer, platform, network, facility, is operationally proven before the next is deployed."
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ============================================================
+// WHY EUROPE, WHY NOW
+// ============================================================
+function WhyNow() {
+  return (
+    <section className="sec-pad" id="why-now">
+      <div className="shell">
+        <SecHead tag="05 · Why Europe · Why Now" meta="Structural · Strategic · Time-bound"
+          title="The window is open. It will not remain open indefinitely."
+          lede="A confluence of defense investment, sovereign-capability requirements, and manufacturing capacity gaps has created a time-bound opportunity to build coordinated industrial infrastructure. First-movers capture platform deployment. Others import capability from elsewhere."
+        />
+
+        <div className="timing-row">
+          <div className="timing-cell">
+            <div className="big">↑ <small>accelerating</small></div>
+            <h5>European defense investment</h5>
+            <p>Member-state defense budgets are expanding. The demand pipeline, air, ISR, space, dual-use, is materializing faster than the continent's coordinated manufacturing capacity can absorb it.</p>
+          </div>
+          <div className="timing-cell">
+            <div className="big">SOV</div>
+            <h5>Sovereign capability mandate</h5>
+            <p>Europe is structurally motivated to strengthen internal industrial capacity and reduce external dependency. The platform model aligns directly with sovereign-capability requirements.</p>
+          </div>
+          <div className="timing-cell">
+            <div className="big">×1000s</div>
+            <h5>Capable suppliers, fragmented</h5>
+            <p>Capability is not the constraint. Coordination is. The continent's industrial base is ready for a unified execution layer, and the pain of fragmentation is increasingly visible.</p>
+          </div>
+          <div className="timing-cell">
+            <div className="big">01</div>
+            <h5>First-mover window</h5>
+            <p>The HQ region captures initial deployment, program flow, and long-term strategic positioning in the network. The compounding advantage accrues to the region that moves first.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+window.Model = Model;
+window.UsExecution = UsExecution;
+window.WhyNow = WhyNow;

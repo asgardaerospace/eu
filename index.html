@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Asgard Aerospace Europe · Continental Manufacturing Network</title>
+  <meta name="description" content="Asgard Aerospace Europe is the coordination and control layer for European aerospace and defense manufacturing — a continental network of Forges that routes production across qualified suppliers under a single, compliance-embedded execution layer.">
+  <meta name="theme-color" content="#0b0d11">
+  <meta property="og:title" content="Asgard Aerospace Europe · Continental Manufacturing Network">
+  <meta property="og:description" content="The missing infrastructure layer for European aerospace manufacturing. Sovereign-aligned, compliance-embedded, operationally proven.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://asgardaerospace.com/europe">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' fill='%230b0d11'/%3E%3Cpath d='M20 5 L34 34 L6 34 Z' fill='none' stroke='%23e8eef5' stroke-width='1.6'/%3E%3Cpath d='M20 15 L28 30 L12 30 Z' fill='%234aa6ff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="sections.css">
+</head>
+<body>
+  <div id="root"></div>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+  <!-- Geo pipeline: real coastline + projection math -->
+  <script src="https://unpkg.com/d3-array@3.2.4/dist/d3-array.min.js"></script>
+  <script src="https://unpkg.com/d3-geo@3.1.1/dist/d3-geo.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js"></script>
+
+  <script type="text/babel" src="europe-map.jsx"></script>
+  <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="sec-1.jsx"></script>
+  <script type="text/babel" src="sec-2.jsx"></script>
+  <script type="text/babel" src="sec-3.jsx"></script>
+  <script type="text/babel" src="sec-4.jsx"></script>
+  <script type="text/babel" src="sec-5.jsx"></script>
+
+  <script type="text/babel">
+    function App() {
+      return (
+        <>
+          <Nav />
+          <Hero />
+          <ExecOverview />
+          <Problem />
+          <Model />
+          <UsExecution />
+          <WhyNow />
+          <Network />
+          <ProgramFlow />
+          <Regions />
+          <Facility />
+          <Operating />
+          <Security />
+          <Impact />
+          <Government />
+          <Roadmap />
+          <KnowledgeBase />
+          <Closing />
+          <Footer />
+        </>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>

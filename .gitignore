@@ -1,0 +1,12 @@
+# Source briefing docs — keep out of public repo
+uploads/
+
+# Screenshots / dev artifacts
+screenshots/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel local
+.vercel
