@@ -106,17 +106,18 @@ function Closing() {
   return (
     <section className="close-hero" id="contact">
       <div className="shell">
-        <div className="eyebrow" style={{justifyContent: "center"}}>
+        <div className="eyebrow" style={{justifyContent: "center", color: "var(--text-mid)"}}>
           <span className="dot"/>AAE · Strategic Engagement
         </div>
-        <h2>This is not a single facility. It is continental infrastructure.</h2>
+        <h2>Enabling Europe's next-generation aerospace infrastructure.</h2>
         <p>
-          Asgard Aerospace Europe is a coordinated manufacturing buildout designed for the continent's next industrial phase.
-          We are engaging regional governments, institutional investors, and strategic industrial partners now.
+          Asgard Aerospace Europe is establishing a coordinated manufacturing infrastructure layer to support the continent's next industrial phase.
+          The platform integrates regional capability into a unified execution system, enabling scalable, sovereign-aligned aerospace production.
+          Engagement is underway with regional governments, institutional investors, and strategic industrial partners.
         </p>
         <div className="ctas">
-          <a className="btn primary" href="https://calendly.com/odin-asgardaerospace/asgard-aerospace-introduction" target="_blank" rel="noopener">Book an Introduction <span className="arrow">→</span></a>
-          <a className="btn" href="mailto:contact@asgardaerospace.com?subject=Regional%20Partnership%20%C2%B7%20AAE">Discuss Regional Partnership</a>
+          <a className="btn primary" href="https://calendly.com/odin-asgardaerospace/asgard-aerospace-introduction" target="_blank" rel="noopener">Initiate Engagement <span className="arrow">→</span></a>
+          <a className="btn" href="mailto:contact@asgardaerospace.com?subject=Regional%20Partnership%20%C2%B7%20AAE">Explore Regional Partnership</a>
           <a className="btn" href="mailto:contact@asgardaerospace.com?subject=Strategic%20Briefing%20%C2%B7%20AAE">Request Strategic Briefing</a>
         </div>
       </div>

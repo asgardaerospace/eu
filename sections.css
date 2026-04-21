@@ -693,6 +693,6 @@
 .close-hero { padding: 180px 0 120px; background: linear-gradient(180deg, var(--bg-void), var(--bg-base)); text-align: center; position: relative; overflow: hidden; }
 .close-hero::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(to right, color-mix(in oklch, var(--line) 50%, transparent) 1px, transparent 1px), linear-gradient(to bottom, color-mix(in oklch, var(--line) 50%, transparent) 1px, transparent 1px); background-size: 120px 120px; mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black 20%, transparent 80%); opacity: 0.5; }
 .close-hero > * { position: relative; }
-.close-hero h2 { font-family: var(--f-display); font-size: clamp(40px, 6vw, 88px); font-weight: 500; color: var(--text-hi); letter-spacing: -0.035em; line-height: 1; max-width: 20ch; margin: 24px auto 32px; }
-.close-hero p { color: var(--text-dim); font-size: 17px; max-width: 56ch; margin: 0 auto 40px; line-height: 1.55; }
+.close-hero h2 { font-family: var(--f-display); font-size: clamp(40px, 6vw, 88px); font-weight: 500; color: var(--text-hi); letter-spacing: -0.035em; line-height: 1; max-width: 22ch; margin: 32px auto 48px; }
+.close-hero p { color: var(--text-dim); font-size: 17px; max-width: 64ch; margin: 0 auto 48px; line-height: 1.6; }
 .close-hero .ctas { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
