@@ -412,16 +412,16 @@ function Facility() {
             <h3>{size === "initial" ? "Initial deployment" : "Scaled operations"}</h3>
             <p>
               {size === "initial"
-                ? "The initial footprint establishes operational presence, validates workflows, and supports early program execution. Sized for proof rather than speculative volume, with integration, secure production environments, and initial composites capability."
-                : "The scaled footprint expands integration capacity, adds multi-program cells, and brings full inspection and certification infrastructure online. Capacity benchmark of 150 to 250 employees and €90M to €115M of annual throughput per node."}
+                ? "The initial footprint establishes operational presence, validates workflows, and supports early program execution. A lean, high-skill convergence node — integration-focused, not mass production — with secure production environments and initial composites capability."
+                : "The scaled footprint expands integration capacity, adds multi-program cells, and brings full inspection and certification infrastructure online. Capacity benchmark of 120 to 150 personnel and €90M to €115M of annual throughput per node."}
             </p>
             <div className="stats">
               <div className="stat">
-                <div className="n">{size === "initial" ? "20 to 35" : "150 to 250"}</div>
-                <div className="l">Direct employment</div>
+                <div className="n">{size === "initial" ? "40 to 80" : "120 to 150"}</div>
+                <div className="l">{size === "initial" ? "Initial operational team" : "Scaled facility team"}</div>
               </div>
               <div className="stat">
-                <div className="n">{size === "initial" ? "Up to €22M" : "€90 to 115M"}</div>
+                <div className="n">{size === "initial" ? "Up to €23M" : "€90 to 115M"}</div>
                 <div className="l">Annual throughput</div>
               </div>
             </div>
@@ -431,17 +431,16 @@ function Facility() {
         {/* zone list */}
         <div className="zone-list">
           {[
-            ["Z01", "Integration & assembly", "Configurable subassembly lines and multi-program cells. Material flow optimized for inbound supplier components.", "COMMISSIONED"],
-            ["Z02", "Composites & thermoplastics", "Prepreg layup, thermoplastic forming, and controlled curing and finishing environments.", "COMMISSIONED"],
-            ["Z03", "Machining & fabrication support", "Light precision machining and internal tooling to support integration workflows.", "PHASE 1"],
-            ["Z04", "Inspection & metrology", "CMM, non-destructive inspection, and certification-grade documentation processing.", "EMBEDDED"],
-            ["Z05", "Secure production", "Restricted-access cells for defense and IP-sensitive programs with segmented material and information flow.", "GOVERNMENT-GRADE"],
-          ].map(([id, name, desc, status]) => (
+            ["Z01", "Integration & assembly", "Configurable subassembly lines and multi-program cells optimized for inbound supplier convergence."],
+            ["Z02", "Composites & thermoplastics", "Prepreg layup, thermoplastic forming, and controlled curing environments for structural components."],
+            ["Z03", "Machining & fabrication support", "Precision machining and internal tooling to support integration workflows and rapid iteration."],
+            ["Z04", "Inspection & metrology", "CMM, non-destructive inspection, and certification-grade documentation processing."],
+            ["Z05", "Secure production", "Controlled-access environments for defense and IP-sensitive programs with segmented material flow."],
+          ].map(([id, name, desc]) => (
             <div key={id} className="zone">
               <div className="zid">{id}</div>
               <h5>{name}</h5>
               <div className="desc">{desc}</div>
-              <div className="status">{status}</div>
             </div>
           ))}
         </div>

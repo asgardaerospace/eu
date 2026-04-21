@@ -499,7 +499,7 @@
 .zone-list { display: grid; grid-template-columns: 1fr; gap: 0; border: 1px solid var(--line); border-top: 0; }
 .zone {
   padding: 20px 28px; border-top: 1px solid var(--line);
-  display: grid; grid-template-columns: 40px 200px 1fr auto; gap: 24px; align-items: center;
+  display: grid; grid-template-columns: 40px 240px 1fr; gap: 24px; align-items: center;
   transition: background 0.2s;
 }
 .zone:hover { background: var(--bg-panel); }
@@ -508,7 +508,7 @@
 .zone .desc { font-size: 13px; color: var(--text-dim); line-height: 1.45; }
 .zone .status { font-family: var(--f-mono); font-size: 10px; color: var(--text-faint); letter-spacing: 0.14em; text-transform: uppercase; }
 
-@media (max-width: 1000px) { .facility { grid-template-columns: 1fr; } .facility-info { border-left: 0; border-top: 1px solid var(--line); } .zone { grid-template-columns: 40px 1fr; gap: 12px; } .zone .desc, .zone .status { grid-column: 1 / -1; padding-left: 52px; } }
+@media (max-width: 1000px) { .facility { grid-template-columns: 1fr; } .facility-info { border-left: 0; border-top: 1px solid var(--line); } .zone { grid-template-columns: 40px 1fr; gap: 12px; } .zone .desc { grid-column: 1 / -1; padding-left: 52px; } }
 
 /* ---- Operating model / entity ---- */
 .ops-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; border: 1px solid var(--line); margin-top: 40px; }
