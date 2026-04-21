@@ -1,102 +1,117 @@
 /* global React, ReactDOM, d3, topojson */
 // ============================================================
-// AsgardSequence (JSX mirror of components/cinematic/AsgardSequence.tsx)
+// AsgardSequence — cinematic system explanation for Asgard
+// Aerospace Europe. Not a visual effect. A 40-second narrative
+// that shows exactly how a program moves through the network.
 //
-// A 36-second cinematic cover for Asgard Aerospace Europe. Acts as
-// a preload / splash that plays once before minimising to reveal the
-// site. Tells the full system story — origin → routing → specialty
-// contribution → Forge integration → delivery → empowerment — across
-// a projected Europe map.
+// Every beat answers: what triggered this, what changed as a
+// result. A single program pulse drives everything visible.
 //
-//   Scene 1  (0 – 4s)   Fragmented state
-//   Scene 2  (4 – 8s)   Program intake · Amsterdam
-//   Scene 3  (8 – 20s)  Every region contributes what it does best
-//   Scene 4  (20 – 26s) Flows integrate at the Forge
-//   Scene 5  (26 – 30s) Certified · Routed · Delivered
-//   Scene 6  (30 – 36s) Continental execution layer · brand
+//   Phase 1  (0   – 5s)    Fragmentation
+//   Phase 2  (5   – 10s)   Program entry
+//   Phase 3  (10  – 23s)   Network routing
+//   Phase 4  (23  – 31s)   Forge convergence
+//   Phase 5  (31  – 40s)   Delivery state
+//
+// Phases are modular pure time-functions so a future guided
+// mode can step through or pause at any boundary.
 // ============================================================
 
 const { useState, useEffect, useRef, useMemo } = React;
 
-const CIN_VIEW_W = 1000;
-const CIN_VIEW_H = 900;
-const CIN_DURATION = 36;
+const CIN_VIEW_W  = 1000;
+const CIN_VIEW_H  = 900;
+const CIN_DURATION = 40;
 
-const CIN_SCENES = [
-  { id: 1, start: 0,  end: 4,  title: "Europe has capability. It lacks coordination.",           eyebrow: "STATE · FRAGMENTED" },
-  { id: 2, start: 4,  end: 8,  title: "A program enters the network.",                            eyebrow: "INTAKE · AMSTERDAM" },
-  { id: 3, start: 8,  end: 20, title: "Every region contributes what it does best.",              eyebrow: "ROUTING · SPECIALTY" },
-  { id: 4, start: 20, end: 26, title: "Flows integrate at the Forge.",                            eyebrow: "INTEGRATION · CERTIFICATION" },
-  { id: 5, start: 26, end: 30, title: "Certified. Routed. Delivered.",                            eyebrow: "DELIVERY · CONTINENTAL" },
-  { id: 6, start: 30, end: 36, title: "A continental manufacturing infrastructure layer.",        eyebrow: "ASGARD AEROSPACE · EUROPE" },
+// ── Phase manifest ─────────────────────────────────────────────
+// Each phase is a closed interval [start, end). Transitions use
+// micro-pauses at the seams so comprehension lands before motion.
+
+const PHASES = [
+  { id: 1, start: 0,  end: 5,  key: "fragmentation", eyebrow: "STATE · FRAGMENTED",    title: "European manufacturing exists as fragmented capability" },
+  { id: 2, start: 5,  end: 10, key: "entry",         eyebrow: "PROGRAM · INTAKE",      title: "A program enters the network" },
+  { id: 3, start: 10, end: 23, key: "routing",       eyebrow: "NETWORK · ROUTING",     title: "Work is routed across qualified suppliers" },
+  { id: 4, start: 23, end: 31, key: "convergence",   eyebrow: "FORGE · CONVERGENCE",   title: "Production converges for integration and certification" },
+  { id: 5, start: 31, end: 40, key: "delivery",      eyebrow: "DELIVERY · UNIFIED",    title: "Delivered under unified configuration control" },
 ];
 
-// The program enters Europe here. Distinct from the network nodes —
-// it's the front door of the system, not an integration point.
+// Program intake — the door into the system. Not a network node.
 const CIN_ORIGIN = { lon: 4.90, lat: 52.37, label: "AMSTERDAM", sub: "PROGRAM INTAKE" };
 
-// Field delivery endpoints. Not infrastructure nodes — these are the
-// customers, bases, and programs the network delivers into. They
-// appear briefly during Scene 5 to dramatise continental reach.
-const CIN_DELIVERIES = [
-  { lon:  2.35, lat: 48.85, label: "PARIS" },
-  { lon: 13.40, lat: 52.52, label: "BERLIN" },
-  { lon: 12.48, lat: 41.90, label: "ROME"  },
-];
-
-// Network nodes with city + specialty. Same lattice as the site map;
-// city names anchor the story in real geography.
+// Network lattice. Forges are integration + certification
+// authority; suppliers are qualified capability endpoints. The
+// role drives every visual difference between the two.
 const CIN_NODES = [
-  { id: "AAE-N01", name: "Iberian Anchor",    role: "candidate", lon:  2.17, lat: 41.39, city: "Barcelona", specialty: "Composites · Integration",    tagDir: "SE" },
-  { id: "AAE-N02", name: "Northern Iberia",   role: "forge",     lon: -2.68, lat: 43.26, city: "Bilbao",    specialty: "Heavy Metals · Forging",      tagDir: "W"  },
-  { id: "AAE-N03", name: "Southern France",   role: "forge",     lon:  1.44, lat: 43.60, city: "Toulouse",  specialty: "Final Assembly",              tagDir: "S"  },
-  { id: "AAE-N04", name: "Northern Corridor", role: "forge",     lon:  4.35, lat: 50.85, city: "Brussels",  specialty: "Avionics · Systems",          tagDir: "W"  },
-  { id: "AAE-N05", name: "Central Corridor",  role: "planned",   lon:  6.96, lat: 51.23, city: "Ruhr",      specialty: "Precision Machining",         tagDir: "E"  },
-  { id: "AAE-N06", name: "Southern Corridor", role: "planned",   lon:  9.19, lat: 45.46, city: "Milan",     specialty: "Engines",                     tagDir: "SE" },
-  { id: "AAE-N07", name: "Alpine Corridor",   role: "planned",   lon: 11.58, lat: 48.14, city: "Munich",    specialty: "Aerospace Electronics",       tagDir: "NE" },
-  { id: "AAE-N08", name: "Eastern Corridor",  role: "planned",   lon: 18.92, lat: 50.26, city: "Kraków",    specialty: "Fabrication",                 tagDir: "E"  },
-  { id: "AAE-N09", name: "Atlantic Edge",     role: "planned",   lon: -9.14, lat: 38.72, city: "Lisbon",    specialty: "MRO · Test",                  tagDir: "SW" },
-  { id: "AAE-N10", name: "Nordic Edge",       role: "planned",   lon: 18.06, lat: 59.33, city: "Stockholm", specialty: "Defense Electronics",         tagDir: "E"  },
+  { id: "AAE-N01", role: "forge",    lon:  2.17, lat: 41.39, city: "Barcelona", specialty: "Composites · Integration", tagDir: "SE" },
+  { id: "AAE-N02", role: "forge",    lon: -2.68, lat: 43.26, city: "Bilbao",    specialty: "Heavy Metals · Forging",   tagDir: "W"  },
+  { id: "AAE-N03", role: "forge",    lon:  1.44, lat: 43.60, city: "Toulouse",  specialty: "Final Assembly",           tagDir: "S"  },
+  { id: "AAE-N04", role: "forge",    lon:  4.35, lat: 50.85, city: "Brussels",  specialty: "Avionics · Systems",       tagDir: "W"  },
+  { id: "AAE-N05", role: "supplier", lon:  6.96, lat: 51.23, city: "Ruhr",      specialty: "Precision Machining",      tagDir: "E"  },
+  { id: "AAE-N06", role: "supplier", lon:  9.19, lat: 45.46, city: "Milan",     specialty: "Engines",                  tagDir: "SE" },
+  { id: "AAE-N07", role: "supplier", lon: 11.58, lat: 48.14, city: "Munich",    specialty: "Aerospace Electronics",    tagDir: "NE" },
+  { id: "AAE-N08", role: "supplier", lon: 18.92, lat: 50.26, city: "Kraków",    specialty: "Fabrication",              tagDir: "E"  },
+  { id: "AAE-N09", role: "supplier", lon: -9.14, lat: 38.72, city: "Lisbon",    specialty: "MRO · Test",               tagDir: "SW" },
+  { id: "AAE-N10", role: "supplier", lon: 18.06, lat: 59.33, city: "Stockholm", specialty: "Defense Electronics",      tagDir: "E"  },
 ];
 
-// Network edges — routing topology that stabilises by scene 6.
-const CIN_EDGES = [
-  [0, 1], [0, 2], [1, 2], [2, 3], [1, 3], [0, 3],
-  [3, 4], [3, 6], [4, 7], [2, 5], [0, 8],
-  [6, 5], [4, 9], [7, 8], [5, 6],
+const CIN_FORGE_INDICES    = CIN_NODES.map((n, i) => n.role === "forge" ? i : -1).filter(i => i >= 0);
+const CIN_SUPPLIER_INDICES = CIN_NODES.map((n, i) => n.role === "supplier" ? i : -1).filter(i => i >= 0);
+
+// Phase 1 fragmented state — four unconnected suppliers sit
+// dimly on the map. The forges stay dark; integration capability
+// does not exist until the system actually coordinates it.
+// Indices: 5 Milan, 6 Munich, 8 Lisbon, 9 Stockholm.
+const INITIAL_VISIBLE = new Set([5, 6, 8, 9]);
+
+// Phase 3 hop sequence — the program pulse visits each supplier
+// in geographic sweep order. The sequence ends at Lisbon so the
+// final hop is a long Atlantic reach that reads as continental
+// coverage before convergence begins.
+const HOP_SEQUENCE  = [4, 6, 5, 7, 9, 8]; // Ruhr → Munich → Milan → Kraków → Stockholm → Lisbon
+const HOP_DURATION  = 1.75;  // travel time per hop
+const HOP_DWELL     = 0.25;  // micro-pause on arrival
+const HOP_START     = 10.5;  // phase 3 begins after a 0.5s settle
+// Total phase 3 motion: 6 × 2.0 = 12s. Ends at 22.5s. 0.5s buffer.
+
+// Phase 4 convergence mapping — each supplier routes to its
+// nearest forge for integration and certification.
+const CONVERGE_MAP = {
+  4: 3, // Ruhr      → Brussels
+  5: 2, // Milan     → Toulouse
+  6: 3, // Munich    → Brussels
+  7: 3, // Kraków    → Brussels
+  8: 0, // Lisbon    → Barcelona
+  9: 1, // Stockholm → Bilbao
+};
+
+// Phase 5 forge backbone — stable integration network that
+// becomes visible once convergence completes.
+const BACKBONE_EDGES = [
+  [0, 2], // Barcelona ↔ Toulouse
+  [1, 2], // Bilbao    ↔ Toulouse
+  [2, 3], // Toulouse  ↔ Brussels
+  [0, 1], // Barcelona ↔ Bilbao
 ];
 
-// Indices of Forges (integration + certification authority).
-const CIN_FORGE_INDICES = CIN_NODES
-  .map((n, i) => (n.role === "candidate" || n.role === "forge" ? i : -1))
-  .filter(i => i >= 0);
+// Phase 3 hop edges derived from HOP_SEQUENCE; index -1 = origin.
+const HOP_EDGES = HOP_SEQUENCE.map((to, i) => [i === 0 ? -1 : HOP_SEQUENCE[i - 1], to]);
 
-// Activation order for scene 3 — radiate outward from Amsterdam by
-// great-circle distance, so the cascade reads as a continental sweep.
-const CIN_ACTIVATION_ORDER = (() => {
-  const d2 = (n) => (n.lon - CIN_ORIGIN.lon) ** 2 + (n.lat - CIN_ORIGIN.lat) ** 2;
-  const sorted = CIN_NODES.map((_, i) => i).sort((a, b) => d2(CIN_NODES[a]) - d2(CIN_NODES[b]));
-  const order = [];
-  sorted.forEach((idx, slot) => { order[idx] = slot; });
-  return order;
-})();
+// ── Math / ease helpers ──────────────────────────────────────
 
-// Inverse lookup — "slot N → node index."
-const CIN_ORDER_BY_SLOT = CIN_NODES.map((_, i) => i)
-  .sort((a, b) => CIN_ACTIVATION_ORDER[a] - CIN_ACTIVATION_ORDER[b]);
+function cinClamp01(t) { return Math.max(0, Math.min(1, t)); }
+function cinEaseOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function cinEaseInOutCubic(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2; }
+function cinRange(a, b, s) { const o = []; for (let v = a; v <= b; v += s) o.push(v); return o; }
 
-function cinFeederPoints(cx, cy, seed, count) {
-  const out = [];
-  for (let k = 0; k < count; k++) {
-    const a = ((seed * 37 + k * 83) % 360) * (Math.PI / 180);
-    const r = 70 + ((seed * 13 + k * 41) % 60);
-    out.push({
-      x: cx + Math.cos(a) * r,
-      y: cy + Math.sin(a) * r * 0.75,
-      phase: (k * 0.37) % 1,
-    });
-  }
-  return out;
+// Smooth window: opacity rises 0→1 over `rise`, holds, falls to 0
+// over `fall`. Used for phase-local fades.
+function cinWindow(elapsed, start, rise, hold, fall) {
+  const t = elapsed - start;
+  if (t < 0) return 0;
+  if (t < rise) return t / rise;
+  if (t < rise + hold) return 1;
+  if (t < rise + hold + fall) return 1 - (t - rise - hold) / fall;
+  return 0;
 }
 
 // 8-way directional offset for inline node tags.
@@ -108,6 +123,8 @@ function cinTagOffset(dir, r) {
   const [mx, my] = m[dir] || m.E;
   return [mx * r, my * r];
 }
+
+// ── Geo fetch (memoised across mounts) ───────────────────────
 
 let _cinGeoPromise = null;
 function cinLoadGeo() {
@@ -123,17 +140,14 @@ function cinLoadGeo() {
   return _cinGeoPromise;
 }
 
-function cinEaseOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-function cinEaseInOutQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
-function cinEaseInOutCubic(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2; }
-function cinRange(a, b, s) { const o = []; for (let v = a; v <= b; v += s) o.push(v); return o; }
-function cinClamp01(t) { return Math.max(0, Math.min(1, t)); }
+// ============================================================
+// AsgardSequence — component entrypoint
+// ============================================================
 
 function AsgardSequence({
   autoPlay = true,
   loop = true,
   className,
-  brandMarkSrc,
   onComplete,
   onSkip,
   fill = false,
@@ -181,6 +195,8 @@ function AsgardSequence({
     };
   }, [playing, loop, onComplete]);
 
+  // ── Projection and projected coordinates ────────────────────
+
   const projection = useMemo(() => (
     d3.geoConicConformal()
       .rotate([-10, 0])
@@ -203,148 +219,207 @@ function AsgardSequence({
     return { ...CIN_ORIGIN, x: p[0], y: p[1] };
   }, [projection]);
 
-  const deliveriesProj = useMemo(() => CIN_DELIVERIES.map(d => {
-    const p = projection([d.lon, d.lat]) || [0, 0];
-    return { ...d, x: p[0], y: p[1] };
-  }), [projection]);
+  const currentPhase = PHASES.find(p => elapsed >= p.start && elapsed < p.end) || PHASES[PHASES.length - 1];
 
-  const currentScene = CIN_SCENES.find(s => elapsed >= s.start && elapsed < s.end) || CIN_SCENES[CIN_SCENES.length - 1];
+  // ── Phase-local state functions (pure, time-driven) ─────────
 
-  // Per-node activation 0..1+. Drives opacity, core radius, and ring pulse.
+  // The index of the hop-sequence arrival node currently being
+  // highlighted, or -1. Used to surface a single operational tag
+  // at the node the pulse has just reached.
+  function activeHopArrival() {
+    if (elapsed < HOP_START || elapsed >= 23) return -1;
+    const step = HOP_DURATION + HOP_DWELL;
+    const localT = elapsed - HOP_START;
+    const hopIndex = Math.floor(localT / step);
+    if (hopIndex < 0 || hopIndex >= HOP_SEQUENCE.length) return -1;
+    const inHop = localT - hopIndex * step;
+    // Label appears in the last third of travel and holds through dwell.
+    if (inHop < HOP_DURATION * 0.65) return -1;
+    return HOP_SEQUENCE[hopIndex];
+  }
+
+  // How far a given supplier has progressed along the hop
+  // sequence — returns 0 before it is visited, 1 after arrival.
+  function hopArrivalProgress(nodeIdx) {
+    const slot = HOP_SEQUENCE.indexOf(nodeIdx);
+    if (slot < 0) return 0;
+    const arriveAt = HOP_START + slot * (HOP_DURATION + HOP_DWELL) + HOP_DURATION;
+    if (elapsed < arriveAt - HOP_DURATION) return 0;
+    return cinClamp01((elapsed - (arriveAt - HOP_DURATION)) / HOP_DURATION);
+  }
+
+  // Edge reveal amount 0..1 for a phase-3 hop edge (origin→S0,
+  // S0→S1, …). An edge draws in as its pulse traverses it.
+  function hopEdgeReveal(hopIdx) {
+    const start = HOP_START + hopIdx * (HOP_DURATION + HOP_DWELL);
+    if (elapsed < start) return 0;
+    return cinClamp01((elapsed - start) / HOP_DURATION);
+  }
+
+  // Convergence flow amount 0..1 for each supplier→forge edge.
+  // Phase 4 draws feeders in over 3s then holds.
+  function convergeReveal(supplierIdx) {
+    const start = 24 + (supplierIdx - 4) * 0.25; // staggered 0.25s each
+    if (elapsed < start) return 0;
+    return cinClamp01((elapsed - start) / 2.5);
+  }
+
+  // Backbone reveal — forge-to-forge integration network.
+  const backboneReveal = elapsed < 27 ? 0 : cinClamp01((elapsed - 27) / 3);
+
+  // Is node visible at all? Gradually introduces nodes as the
+  // system activates. Forges ignite only at phase 4 start.
+  function nodeVisibility(i) {
+    const n = nodesProj[i];
+    if (n.role === "forge") {
+      // Forges appear as integration points at phase 4.
+      if (elapsed < 22.8) return 0;
+      return cinClamp01((elapsed - 22.8) / 1.5);
+    }
+    if (INITIAL_VISIBLE.has(i)) {
+      // Latent capability — dim from phase 1, brightens on visit.
+      return 1;
+    }
+    // Other suppliers appear when the pulse reaches them.
+    const slot = HOP_SEQUENCE.indexOf(i);
+    if (slot < 0) return 0;
+    const appearAt = HOP_START + slot * (HOP_DURATION + HOP_DWELL) + HOP_DURATION * 0.6;
+    return elapsed >= appearAt ? cinClamp01((elapsed - appearAt) / 0.4) : 0;
+  }
+
+  // Activation level drives glow / size. 0.15 = latent, 1 = active.
   function nodeActivation(i) {
     const n = nodesProj[i];
-    const isForge = n.role === "candidate" || n.role === "forge";
+    const vis = nodeVisibility(i);
+    if (vis <= 0) return 0;
 
-    if (elapsed < 4) {
-      // Scene 1 — uniformly dim, "capability without coordination."
-      return 0.15;
+    if (n.role === "forge") {
+      // Forges: ramp up through phase 4 to full brightness by
+      // phase 5. Subtle breathing pulse once lit.
+      if (elapsed < 23) return 0.15 * vis;
+      const warmup = cinClamp01((elapsed - 23) / 3);
+      const breath = elapsed >= 26 ? 0.08 * Math.sin((elapsed - 26) * 1.4) : 0;
+      return (0.35 + 0.65 * warmup + breath) * vis;
     }
-    if (elapsed < 8) {
-      // Scene 2 — intake pulse arriving; nodes still mostly dim.
-      // First Forge (N04 Brussels, closest to Amsterdam) begins to
-      // stir at the end of scene 2.
-      if (i === 3) return 0.15 + 0.25 * cinClamp01((elapsed - 7) / 1);
-      return 0.15;
-    }
-    if (elapsed < 20) {
-      // Scene 3 — radial cascade from Amsterdam.
-      const slot = CIN_ACTIVATION_ORDER[i];
-      const activateAt = 8 + slot * 1.15;
-      const t = (elapsed - activateAt) / 1.2;
-      return 0.15 + 0.85 * cinClamp01(t);
-    }
-    if (elapsed < 26) {
-      // Scene 4 — Forges pulse warmer; secondary nodes dim slightly so
-      // the convergence reads clearly.
-      if (isForge) return 1 + 0.18 * Math.sin((elapsed - 20) * 2.2);
-      return 0.72;
-    }
-    if (elapsed < 30) {
-      // Scene 5 — delivery. Forges hold full brightness; others steady.
-      return isForge ? 1 : 0.8;
-    }
-    // Scene 6 — full, stable continental lattice.
-    return 1;
+
+    // Supplier: latent 0.18 until pulse arrives, then full.
+    const arrived = hopArrivalProgress(i);
+    const base = INITIAL_VISIBLE.has(i) ? 0.18 : 0;
+    return (base + (1 - base) * arrived) * vis;
   }
 
-  function edgeOpacity(a, b) {
-    if (elapsed < 8) return 0;
-    const w = Math.min(nodeActivation(a), nodeActivation(b));
-    const base = Math.max(0, (w - 0.2) / 0.8);
-    if (elapsed < 26) return base * 0.55;
-    if (elapsed < 30) return base * 0.65;
-    return 0.75;
+  // ── The single program pulse ────────────────────────────────
+  // One trackable signal across phases 2–5. Returns null when
+  // the pulse is not on screen (e.g. during phase 1 fragmentation).
+
+  function programPulse() {
+    // Phase 2 — enter from offscreen left toward Amsterdam.
+    if (elapsed < 5) return null;
+    if (elapsed < 10) {
+      const t = cinClamp01((elapsed - 5.5) / 3.5); // enters at 5.5s, arrives at 9s
+      if (t < 0) return { x: -90, y: originProj.y - 40, opacity: 0 };
+      const start = { x: -90, y: originProj.y - 40 };
+      const ease = cinEaseOutCubic(t);
+      return {
+        x: start.x + (originProj.x - start.x) * ease,
+        y: start.y + (originProj.y - start.y) * ease,
+        opacity: 1,
+        phase: 2,
+      };
+    }
+
+    // Phase 3 — hop through suppliers.
+    if (elapsed < 23) {
+      const step = HOP_DURATION + HOP_DWELL;
+      const localT = elapsed - HOP_START;
+      if (localT < 0) {
+        return { x: originProj.x, y: originProj.y, opacity: 1, phase: 3 };
+      }
+      const hopIndex = Math.floor(localT / step);
+      if (hopIndex >= HOP_SEQUENCE.length) {
+        const last = nodesProj[HOP_SEQUENCE[HOP_SEQUENCE.length - 1]];
+        return { x: last.x, y: last.y, opacity: 1, phase: 3 };
+      }
+      const inHop = localT - hopIndex * step;
+      const fromIdx = hopIndex === 0 ? -1 : HOP_SEQUENCE[hopIndex - 1];
+      const from = fromIdx < 0 ? originProj : nodesProj[fromIdx];
+      const to = nodesProj[HOP_SEQUENCE[hopIndex]];
+      if (inHop < HOP_DURATION) {
+        const t = inHop / HOP_DURATION;
+        const ease = cinEaseInOutCubic(t);
+        return {
+          x: from.x + (to.x - from.x) * ease,
+          y: from.y + (to.y - from.y) * ease,
+          opacity: 1,
+          phase: 3,
+        };
+      }
+      return { x: to.x, y: to.y, opacity: 1, phase: 3 };
+    }
+
+    // Phase 4 — pulse crosses from final supplier (Lisbon) to
+    // primary forge (Toulouse), then holds at the forge while
+    // peripheral feeders converge around it.
+    if (elapsed < 31) {
+      const last = nodesProj[HOP_SEQUENCE[HOP_SEQUENCE.length - 1]];
+      const forge = nodesProj[2]; // Toulouse
+      if (elapsed < 26.5) {
+        const t = cinClamp01((elapsed - 23.5) / 3);
+        const ease = cinEaseInOutCubic(t);
+        return {
+          x: last.x + (forge.x - last.x) * ease,
+          y: last.y + (forge.y - last.y) * ease,
+          opacity: 1,
+          phase: 4,
+        };
+      }
+      return { x: forge.x, y: forge.y, opacity: 1, phase: 4 };
+    }
+
+    // Phase 5 — delivery. Pulse traverses Toulouse → Brussels
+    // → offscreen right. Fades after leaving the frame.
+    if (elapsed < 40) {
+      const path = [
+        nodesProj[2], // Toulouse
+        nodesProj[3], // Brussels
+        { x: CIN_VIEW_W + 80, y: nodesProj[3].y - 60 }, // delivered
+      ];
+      const totalDur = 6; // 31 → 37
+      const t = cinClamp01((elapsed - 31.5) / totalDur);
+      if (t <= 0) {
+        return { x: path[0].x, y: path[0].y, opacity: 1, phase: 5 };
+      }
+      const segT = t * (path.length - 1);
+      const segI = Math.min(path.length - 2, Math.floor(segT));
+      const localT = segT - segI;
+      const from = path[segI], to = path[segI + 1];
+      const ease = cinEaseInOutCubic(localT);
+      const fade = elapsed > 37 ? cinClamp01(1 - (elapsed - 37) / 1.5) : 1;
+      return {
+        x: from.x + (to.x - from.x) * ease,
+        y: from.y + (to.y - from.y) * ease,
+        opacity: fade,
+        phase: 5,
+      };
+    }
+
+    return null;
   }
 
-  // Scene 2 intake pulse: off-screen → Amsterdam over 2.5s.
-  const intakeT = elapsed >= 4 && elapsed < 8 ? cinClamp01((elapsed - 4.5) / 2.5) : -1;
-  const intakeStart = { x: -90, y: originProj.y - 40 };
-  const intake = intakeT >= 0 ? {
-    x: intakeStart.x + (originProj.x - intakeStart.x) * cinEaseOutCubic(intakeT),
-    y: intakeStart.y + (originProj.y - intakeStart.y) * cinEaseOutCubic(intakeT),
-    opacity: intakeT < 0.92 ? 1 : Math.max(0, 1 - (intakeT - 0.92) / 0.08),
-  } : null;
+  const pulse = programPulse();
 
-  // Amsterdam origin marker visibility — appears at scene 2 intake,
-  // persists subtly through the rest of the sequence.
-  const originOn = elapsed >= 4.3 ? cinClamp01((elapsed - 4.3) / 0.6) : 0;
-  const originPulse = elapsed >= 5.5 && elapsed < 20
-    ? 0.5 + 0.5 * Math.sin((elapsed - 5.5) * 3.2) : 0;
+  // Amsterdam origin visibility — appears with the program entry,
+  // persists through the rest of the sequence at low key once
+  // the routing begins.
+  const originOn = elapsed < 5.3 ? 0
+    : elapsed < 10 ? cinClamp01((elapsed - 5.3) / 0.8)
+    : 1;
+  const originIntensity = elapsed < 10 ? 1 : 0.55;
 
-  // Scene 3 routing pulses — from Amsterdam to each node in staggered order.
-  function scene3RoutePulse(nodeIdx) {
-    if (elapsed < 8 || elapsed >= 20) return null;
-    const slot = CIN_ACTIVATION_ORDER[nodeIdx];
-    const start = 8 + slot * 1.15;
-    const dur = 1.2;
-    const localT = (elapsed - start) / dur;
-    if (localT < 0 || localT > 1) return null;
-    const n = nodesProj[nodeIdx];
-    const ease = cinEaseInOutCubic(localT);
-    return {
-      x: originProj.x + (n.x - originProj.x) * ease,
-      y: originProj.y + (n.y - originProj.y) * ease,
-      opacity: localT < 0.15 ? localT / 0.15 : localT > 0.85 ? (1 - localT) / 0.15 : 1,
-    };
-  }
+  // Phase 4 forge halo strength — grows as convergence progresses.
+  const forgeHalo = elapsed < 23 ? 0 : cinClamp01((elapsed - 23) / 3);
 
-  // Scene 4 Forge convergence feeders (gold).
-  const convergeT = elapsed >= 20 && elapsed < 26 ? (elapsed - 20) / 6 : -1;
-
-  // Scene 5 delivery pulses — from the geographic centroid of the
-  // Forge cluster to each delivery endpoint. Staggered by 0.6s.
-  function scene5DeliveryPulse(deliveryIdx) {
-    if (elapsed < 26 || elapsed >= 30) return null;
-    const start = 26 + deliveryIdx * 0.5;
-    const dur = 2.2;
-    const localT = (elapsed - start) / dur;
-    if (localT < 0 || localT > 1) return null;
-    const forgePts = CIN_FORGE_INDICES.map(i => nodesProj[i]);
-    const cx = forgePts.reduce((s, p) => s + p.x, 0) / forgePts.length;
-    const cy = forgePts.reduce((s, p) => s + p.y, 0) / forgePts.length;
-    const tgt = deliveriesProj[deliveryIdx];
-    const ease = cinEaseInOutCubic(localT);
-    return {
-      from: { x: cx, y: cy },
-      pos:  { x: cx + (tgt.x - cx) * ease, y: cy + (tgt.y - cy) * ease },
-      to:   { x: tgt.x, y: tgt.y },
-      opacity: localT < 0.1 ? localT / 0.1 : localT > 0.9 ? (1 - localT) / 0.1 : 1,
-      arrived: localT > 0.8,
-    };
-  }
-
-  // Scene 6 brand reveal: 0 → 1 across 30–32s, stable thereafter.
-  const brandT = elapsed >= 30 ? cinClamp01((elapsed - 30) / 1.6) : 0;
-
-  // Scene 3 rotating callout: index of the node whose specialty is
-  // currently on screen. Uses the slot-order lookup.
-  const calloutIdx = (() => {
-    if (elapsed < 8 || elapsed >= 20) return -1;
-    const slot = Math.min(CIN_NODES.length - 1, Math.floor((elapsed - 8) / 1.15));
-    return CIN_ORDER_BY_SLOT[slot];
-  })();
-
-  // Specialty tag opacity per node. Tags appear as the node ignites,
-  // hold through scene 4, fade out during scene 5.
-  function tagOpacity(i) {
-    if (elapsed < 8) return 0;
-    const slot = CIN_ACTIVATION_ORDER[i];
-    const appearAt = 8 + slot * 1.15 + 0.8;
-    if (elapsed < appearAt) return 0;
-    if (elapsed < 26) return cinClamp01((elapsed - appearAt) / 0.6);
-    if (elapsed < 28) return 1 - cinClamp01((elapsed - 26) / 2);
-    return 0;
-  }
-
-  // Count currently lit nodes (for HUD).
-  const countLit = (
-    elapsed < 4 ? 0 :
-    elapsed < 8 ? 0 :
-    elapsed < 20 ? Math.min(CIN_NODES.length, Math.floor((elapsed - 8) / 1.15) + 1) :
-    CIN_NODES.length
-  );
-
-  // ── Render ─────────────────────────────────────────────────────
+  // ── Render ─────────────────────────────────────────────────
 
   return (
     <div
@@ -375,43 +450,35 @@ function AsgardSequence({
             <stop offset="100%" stopColor="oklch(13% 0.010 250)" />
           </linearGradient>
           <filter id="cin-glow" x="-100%" y="-100%" width="300%" height="300%">
-            <feGaussianBlur stdDeviation="3.5" result="b" />
+            <feGaussianBlur stdDeviation="3" result="b" />
             <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
           <filter id="cin-glow-soft" x="-200%" y="-200%" width="500%" height="500%">
             <feGaussianBlur stdDeviation="6" result="b" />
             <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
           </filter>
-          <filter id="cin-glow-big" x="-300%" y="-300%" width="700%" height="700%">
-            <feGaussianBlur stdDeviation="10" result="b" />
-            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
           <radialGradient id="cin-forge-halo" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="oklch(84% 0.14 78)" stopOpacity="0.55" />
-            <stop offset="60%"  stopColor="oklch(78% 0.13 78)" stopOpacity="0.18" />
+            <stop offset="0%"   stopColor="oklch(84% 0.14 78)" stopOpacity="0.5" />
+            <stop offset="60%"  stopColor="oklch(78% 0.13 78)" stopOpacity="0.15" />
             <stop offset="100%" stopColor="oklch(72% 0.12 78)" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="cin-origin-halo" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="oklch(90% 0.16 230)" stopOpacity="0.7" />
-            <stop offset="50%"  stopColor="oklch(82% 0.14 230)" stopOpacity="0.25" />
+            <stop offset="0%"   stopColor="oklch(90% 0.16 230)" stopOpacity="0.6" />
+            <stop offset="50%"  stopColor="oklch(82% 0.14 230)" stopOpacity="0.2" />
             <stop offset="100%" stopColor="oklch(72% 0.14 235)" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id="cin-delivery-halo" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"   stopColor="oklch(92% 0.12 160)" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="oklch(70% 0.12 160)" stopOpacity="0" />
           </radialGradient>
         </defs>
 
         <rect x={0} y={0} width={CIN_VIEW_W} height={CIN_VIEW_H} fill="url(#cin-ocean)" />
 
-        {/* Graticule */}
-        <g stroke="oklch(26% 0.010 245)" strokeWidth="0.4" opacity="0.3" fill="none">
-          {[-20, -10, 0, 10, 20, 30].map(lon => {
-            const d = pathGen({ type: "LineString", coordinates: cinRange(25, 72, 1).map(lat => [lon, lat]) });
+        {/* Graticule — minimal, always present, low contrast */}
+        <g stroke="oklch(26% 0.010 245)" strokeWidth="0.4" opacity="0.25" fill="none">
+          {[-10, 0, 10, 20].map(lon => {
+            const d = pathGen({ type: "LineString", coordinates: cinRange(30, 68, 1).map(lat => [lon, lat]) });
             return d ? <path key={"mx" + lon} d={d} /> : null;
           })}
-          {[30, 40, 50, 60, 70].map(lat => {
-            const d = pathGen({ type: "LineString", coordinates: cinRange(-25, 50, 1).map(lon => [lon, lat]) });
+          {[40, 50, 60].map(lat => {
+            const d = pathGen({ type: "LineString", coordinates: cinRange(-20, 40, 1).map(lon => [lon, lat]) });
             return d ? <path key={"my" + lat} d={d} /> : null;
           })}
         </g>
@@ -419,26 +486,53 @@ function AsgardSequence({
         {geo && (
           <g>
             <path d={pathGen(geo.countries) || ""} fill="url(#cin-land)" />
-            <path d={pathGen(geo.borders) || ""}   fill="none" stroke="oklch(24% 0.010 245)" strokeWidth="0.35" opacity="0.65" vectorEffect="non-scaling-stroke" />
-            <path d={pathGen(geo.coastline) || ""} fill="none" stroke="oklch(55% 0.08 230)"  strokeWidth="0.9"  opacity="0.5"  vectorEffect="non-scaling-stroke" />
-            <path d={pathGen(geo.coastline) || ""} fill="none" stroke="oklch(75% 0.10 220)"  strokeWidth="0.35" opacity="0.8"  vectorEffect="non-scaling-stroke" />
+            <path d={pathGen(geo.borders) || ""}   fill="none" stroke="oklch(24% 0.010 245)" strokeWidth="0.35" opacity="0.6" vectorEffect="non-scaling-stroke" />
+            <path d={pathGen(geo.coastline) || ""} fill="none" stroke="oklch(55% 0.08 230)"  strokeWidth="0.8"  opacity="0.45" vectorEffect="non-scaling-stroke" />
           </g>
         )}
 
-        {/* Routes (scene 3+) */}
+        {/* ── Phase 3 hop routes (draw in as pulse traverses) ── */}
         <g>
-          {CIN_EDGES.map(([a, b], i) => {
-            const op = edgeOpacity(a, b);
-            if (op <= 0.01) return null;
-            const A = nodesProj[a], B = nodesProj[b];
-            const d = `M ${A.x} ${A.y} L ${B.x} ${B.y}`;
-            const showPulse = elapsed >= 12 && elapsed < 26;
+          {HOP_EDGES.map(([fromIdx, toIdx], i) => {
+            const reveal = hopEdgeReveal(i);
+            if (reveal <= 0.01) return null;
+            const from = fromIdx < 0 ? originProj : nodesProj[fromIdx];
+            const to = nodesProj[toIdx];
+            const dx = to.x - from.x, dy = to.y - from.y;
+            const mx = from.x + dx * reveal;
+            const my = from.y + dy * reveal;
+            // Fade routes down slightly after phase 3 so convergence reads.
+            const afterFade = elapsed >= 23 ? 0.55 : 1;
             return (
-              <g key={"edge-" + i}>
-                <path d={d} fill="none" stroke="oklch(70% 0.12 230)" strokeWidth="0.9" opacity={op} />
-                {showPulse && (
-                  <circle r="2.2" fill="oklch(90% 0.12 230)" filter="url(#cin-glow)" opacity={op * 1.1}>
-                    <animateMotion dur={`${3 + (i % 5) * 0.4}s`} repeatCount="indefinite" path={d} />
+              <g key={"hop-" + i} opacity={afterFade}>
+                <line x1={from.x} y1={from.y} x2={mx} y2={my}
+                  stroke="oklch(82% 0.14 230)" strokeWidth="0.85" opacity="0.5" strokeLinecap="round" />
+              </g>
+            );
+          })}
+        </g>
+
+        {/* ── Phase 4 convergence feeders (supplier → forge) ── */}
+        <g>
+          {Object.entries(CONVERGE_MAP).map(([supIdx, forgeIdx]) => {
+            const s = parseInt(supIdx, 10);
+            const f = parseInt(forgeIdx, 10);
+            const reveal = convergeReveal(s);
+            if (reveal <= 0.01) return null;
+            const A = nodesProj[s], B = nodesProj[f];
+            const dx = B.x - A.x, dy = B.y - A.y;
+            const mx = A.x + dx * reveal;
+            const my = A.y + dy * reveal;
+            // After phase 4 holds, feeders stay at steady opacity.
+            const hold = elapsed >= 30 ? 0.65 : 1;
+            return (
+              <g key={`conv-${s}-${f}`} opacity={hold}>
+                <line x1={A.x} y1={A.y} x2={mx} y2={my}
+                  stroke="oklch(84% 0.13 78)" strokeWidth="0.9" opacity="0.55" strokeLinecap="round" />
+                {elapsed >= 25 && elapsed < 31 && reveal > 0.6 && (
+                  <circle r="1.6" fill="oklch(92% 0.13 82)" filter="url(#cin-glow)" opacity="0.85">
+                    <animateMotion dur={`${2.5 + (s % 3) * 0.3}s`} repeatCount="indefinite"
+                      path={`M ${A.x} ${A.y} L ${B.x} ${B.y}`} />
                   </circle>
                 )}
               </g>
@@ -446,35 +540,36 @@ function AsgardSequence({
           })}
         </g>
 
-        {/* Intake trail (scene 2) */}
-        {intake && (
-          <g opacity={intake.opacity}>
-            <line x1={intakeStart.x} y1={intakeStart.y} x2={intake.x} y2={intake.y}
-              stroke="oklch(82% 0.14 230)" strokeWidth="1.2" opacity="0.45" strokeLinecap="round" />
-            <circle cx={intake.x} cy={intake.y} r="20" fill="oklch(82% 0.14 230)" opacity="0.18" filter="url(#cin-glow-soft)" />
-            <circle cx={intake.x} cy={intake.y} r="5" fill="oklch(94% 0.12 230)" filter="url(#cin-glow)" />
-          </g>
-        )}
+        {/* ── Phase 5 forge backbone ──────────────────────────── */}
+        <g opacity={backboneReveal}>
+          {BACKBONE_EDGES.map(([a, b], i) => {
+            const A = nodesProj[a], B = nodesProj[b];
+            return (
+              <line key={"bb-" + i}
+                x1={A.x} y1={A.y} x2={B.x} y2={B.y}
+                stroke="oklch(78% 0.12 230)" strokeWidth="0.9" opacity="0.5" strokeLinecap="round" />
+            );
+          })}
+        </g>
 
-        {/* Amsterdam origin marker */}
+        {/* ── Amsterdam origin marker ──────────────────────────── */}
         {originOn > 0 && (
           <g opacity={originOn} transform={`translate(${originProj.x}, ${originProj.y})`}>
-            <circle r="28" fill="url(#cin-origin-halo)" opacity={0.6 + 0.4 * originPulse} />
-            <circle r="10" fill="none" stroke="oklch(84% 0.14 230)" strokeWidth="0.9" opacity="0.8">
-              <animate attributeName="r" values="8;22;8" dur="2.2s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.9;0;0.9" dur="2.2s" repeatCount="indefinite" />
+            <circle r="26" fill="url(#cin-origin-halo)" opacity={originIntensity} />
+            <circle r="10" fill="none" stroke="oklch(84% 0.14 230)" strokeWidth="0.9" opacity={0.8 * originIntensity}>
+              <animate attributeName="r" values="8;20;8" dur="2.4s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values={`${0.85 * originIntensity};0;${0.85 * originIntensity}`} dur="2.4s" repeatCount="indefinite" />
             </circle>
-            <circle r="5" fill="oklch(94% 0.12 230)" filter="url(#cin-glow)" />
-            {/* Crosshair ticks */}
-            <g stroke="oklch(84% 0.14 230)" strokeWidth="0.8" opacity="0.7">
-              <line x1={-18} y1={0} x2={-10} y2={0} />
-              <line x1={10}  y1={0} x2={18}  y2={0} />
-              <line x1={0} y1={-18} x2={0} y2={-10} />
-              <line x1={0} y1={10}  x2={0} y2={18}  />
+            <circle r="4.5" fill="oklch(94% 0.12 230)" filter="url(#cin-glow)" />
+            <g stroke="oklch(84% 0.14 230)" strokeWidth="0.7" opacity={0.6 * originIntensity}>
+              <line x1={-16} y1={0} x2={-9} y2={0} />
+              <line x1={9}  y1={0} x2={16}  y2={0} />
+              <line x1={0} y1={-16} x2={0} y2={-9} />
+              <line x1={0} y1={9}  x2={0} y2={16}  />
             </g>
-            {/* Origin label — ONLY during scene 2 to avoid persistent clutter */}
-            {elapsed >= 5 && elapsed < 9 && (
-              <g opacity={cinClamp01((elapsed - 5) / 0.6) * (elapsed < 8.2 ? 1 : cinClamp01((9 - elapsed) / 0.8))}
+            {/* Origin label — only during phase 2 so it reads as intake, not clutter. */}
+            {elapsed >= 6 && elapsed < 10.5 && (
+              <g opacity={cinWindow(elapsed, 6, 0.6, 3.3, 0.6)}
                  transform="translate(14, -28)">
                 <rect x="-4" y="-12" width="168" height="34" fill="oklch(11% 0.010 250)" stroke="oklch(84% 0.14 230)" strokeWidth="0.7" opacity="0.92" />
                 <text fontFamily="var(--f-mono, ui-monospace, monospace)" fontSize="9" letterSpacing="1.6" fill="oklch(84% 0.14 230)">
@@ -488,260 +583,161 @@ function AsgardSequence({
           </g>
         )}
 
-        {/* Scene 3 routing pulses — Amsterdam → each node */}
-        {elapsed >= 8 && elapsed < 20 && nodesProj.map((n, i) => {
-          const p = scene3RoutePulse(i);
-          if (!p) return null;
-          const d = `M ${originProj.x} ${originProj.y} L ${n.x} ${n.y}`;
-          return (
-            <g key={"s3p-" + i} opacity={p.opacity}>
-              <path d={d} stroke="oklch(78% 0.14 230)" strokeWidth="0.7" opacity="0.35" fill="none" strokeDasharray="2 3" />
-              <circle cx={p.x} cy={p.y} r="3.2" fill="oklch(94% 0.12 230)" filter="url(#cin-glow)" />
-            </g>
-          );
-        })}
-
-        {/* Scene 4 Forge convergence feeders */}
-        {convergeT >= 0 && CIN_FORGE_INDICES.map(fi => {
+        {/* ── Forge halos (phase 4+) — visible authority cue ───── */}
+        {forgeHalo > 0 && CIN_FORGE_INDICES.map(fi => {
           const n = nodesProj[fi];
-          const feeders = cinFeederPoints(n.x, n.y, n.id.charCodeAt(4) + fi * 11, 7);
           return (
-            <g key={"forge-" + fi}>
-              <circle cx={n.x} cy={n.y} r="44" fill="url(#cin-forge-halo)" opacity={convergeT} />
-              {feeders.map((f, k) => {
-                const local = (convergeT + f.phase) % 1;
-                const inward = cinEaseInOutQuad(local);
-                const x = f.x + (n.x - f.x) * inward;
-                const y = f.y + (n.y - f.y) * inward;
-                const op = Math.sin(local * Math.PI) * 0.9;
-                return (
-                  <g key={k}>
-                    <line x1={f.x} y1={f.y} x2={n.x} y2={n.y}
-                      stroke="oklch(82% 0.12 78)" strokeWidth="0.35" opacity={0.25 * convergeT} />
-                    <circle cx={x} cy={y} r="1.9" fill="oklch(92% 0.13 82)" filter="url(#cin-glow)" opacity={op} />
-                  </g>
-                );
-              })}
-            </g>
+            <circle key={"halo-" + fi}
+              cx={n.x} cy={n.y} r={42} fill="url(#cin-forge-halo)" opacity={forgeHalo} />
           );
         })}
 
-        {/* Scene 5 delivery pulses + endpoints */}
-        {elapsed >= 26 && elapsed < 30 && deliveriesProj.map((d, di) => {
-          const p = scene5DeliveryPulse(di);
-          const endpointOn = elapsed >= 26 + di * 0.5 ? cinClamp01((elapsed - 26 - di * 0.5) / 0.8) : 0;
-          return (
-            <g key={"del-" + di}>
-              {p && (
-                <g opacity={p.opacity}>
-                  <line x1={p.from.x} y1={p.from.y} x2={p.to.x} y2={p.to.y}
-                    stroke="oklch(88% 0.12 160)" strokeWidth="0.6" opacity="0.35" fill="none" strokeDasharray="3 4" />
-                  <circle cx={p.pos.x} cy={p.pos.y} r="3.4" fill="oklch(94% 0.13 160)" filter="url(#cin-glow)" />
-                </g>
-              )}
-              {endpointOn > 0 && (
-                <g opacity={endpointOn} transform={`translate(${d.x}, ${d.y})`}>
-                  <circle r="22" fill="url(#cin-delivery-halo)" />
-                  {/* Diamond marker for delivery (distinct from circular nodes) */}
-                  <g transform="rotate(45)">
-                    <rect x={-4} y={-4} width="8" height="8" fill="none" stroke="oklch(90% 0.12 160)" strokeWidth="1" />
-                    <rect x={-2} y={-2} width="4" height="4" fill="oklch(94% 0.13 160)" filter="url(#cin-glow)" />
-                  </g>
-                  <text y={-18} textAnchor="middle"
-                    fontFamily="var(--f-mono, ui-monospace, monospace)" fontSize="9" letterSpacing="2"
-                    fill="oklch(90% 0.12 160)">
-                    {d.label}
-                  </text>
-                  <text y={24} textAnchor="middle"
-                    fontFamily="var(--f-mono, ui-monospace, monospace)" fontSize="8" letterSpacing="2"
-                    fill="oklch(70% 0.08 160)">
-                    DELIVERED
-                  </text>
-                </g>
-              )}
-            </g>
-          );
-        })}
-
-        {/* Nodes */}
+        {/* ── Nodes ───────────────────────────────────────────── */}
         {nodesProj.map((n, i) => {
           const a = nodeActivation(i);
-          const isForge = n.role === "forge" || n.role === "candidate";
-          const warmMix = elapsed >= 20 && elapsed < 30 && isForge ? Math.min(1, (elapsed - 20) / 1.5) * 0.6 : 0;
-          const color = warmMix > 0
-            ? `color-mix(in oklch, oklch(82% 0.14 230) ${(1 - warmMix) * 100}%, oklch(84% 0.14 78) ${warmMix * 100}%)`
-            : "oklch(82% 0.14 230)";
-          const baseR = n.role === "planned" ? 4 : 5.5;
-          const coreR = baseR * (0.6 + 0.6 * Math.min(1, a));
-          const ringR = 14 + 6 * Math.min(1, a);
+          if (a <= 0.01) return null;
+          const isForge = n.role === "forge";
+          // Forges are visibly larger and brighter.
+          const baseR = isForge ? 7 : 4.2;
+          const coreR = baseR * (0.55 + 0.55 * Math.min(1, a));
+          const ringR = isForge ? 18 + 6 * Math.min(1, a) : 12 + 4 * Math.min(1, a);
+          const color = isForge ? "oklch(86% 0.14 82)" : "oklch(82% 0.14 230)";
           return (
-            <g key={n.id} opacity={0.35 + 0.65 * Math.min(1, a)}>
-              <circle cx={n.x} cy={n.y} r={ringR} fill="none" stroke={color} strokeWidth="0.9" opacity={0.55 * Math.min(1, a) + 0.15} />
+            <g key={n.id}>
+              <circle cx={n.x} cy={n.y} r={ringR} fill="none" stroke={color}
+                strokeWidth={isForge ? 1.1 : 0.85} opacity={0.4 * Math.min(1, a) + 0.1} />
               {a > 0.5 && (
-                <circle cx={n.x} cy={n.y} r={ringR} fill="none" stroke={color} strokeWidth="0.8" opacity="0.6">
-                  <animate attributeName="r" values={`${ringR};${ringR + 16};${ringR}`} dur={isForge ? "2.6s" : "3.4s"} repeatCount="indefinite" />
-                  <animate attributeName="opacity" values="0.6;0;0.6" dur={isForge ? "2.6s" : "3.4s"} repeatCount="indefinite" />
+                <circle cx={n.x} cy={n.y} r={ringR} fill="none" stroke={color}
+                  strokeWidth="0.75" opacity="0.5">
+                  <animate attributeName="r" values={`${ringR};${ringR + (isForge ? 14 : 10)};${ringR}`}
+                    dur={isForge ? "2.8s" : "3.6s"} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.5;0;0.5"
+                    dur={isForge ? "2.8s" : "3.6s"} repeatCount="indefinite" />
                 </circle>
               )}
-              <circle cx={n.x} cy={n.y} r={coreR} fill={color} filter={a > 0.4 ? "url(#cin-glow)" : undefined} />
+              <circle cx={n.x} cy={n.y} r={coreR} fill={color}
+                filter={a > 0.4 ? "url(#cin-glow)" : undefined} />
             </g>
           );
         })}
 
-        {/* Specialty tags — inline, appear as each node ignites (scenes 3–4). */}
-        {nodesProj.map((n, i) => {
-          const op = tagOpacity(i);
-          if (op <= 0.02) return null;
-          const [ox, oy] = cinTagOffset(n.tagDir, 20);
-          const textAnchor =
-            n.tagDir === "W" || n.tagDir === "NW" || n.tagDir === "SW" ? "end" : "start";
-          return (
-            <g key={"tag-" + n.id} opacity={op}
-               transform={`translate(${n.x + ox}, ${n.y + oy})`}>
-              <text fontFamily="var(--f-mono, ui-monospace, monospace)" fontSize="8.5" letterSpacing="1.6"
-                fill="oklch(90% 0.10 230)" textAnchor={textAnchor}>
-                {n.city.toUpperCase()}
-              </text>
-              <text y="10" fontFamily="var(--f-mono, ui-monospace, monospace)" fontSize="8" letterSpacing="1.2"
-                fill="oklch(68% 0.08 230)" textAnchor={textAnchor}>
-                {n.specialty.toUpperCase()}
-              </text>
-            </g>
-          );
-        })}
+        {/* ── Inline labels ─────────────────────────────────────
+            Two tiers:
+             • During phase 3, the node the pulse just reached
+               surfaces a single operational tag (city · specialty).
+             • From phase 4 onward, every activated node shows a
+               compact city label. Forges get bolder type. */}
+        {(() => {
+          const activeIdx = activeHopArrival();
+          return nodesProj.map((n, i) => {
+            const vis = nodeVisibility(i);
+            if (vis < 0.4) return null;
 
-        {/* Scene 6 — brand backdrop dim */}
-        {brandT > 0 && (
-          <rect x={0} y={0} width={CIN_VIEW_W} height={CIN_VIEW_H}
-            fill="oklch(8% 0.010 250)" opacity={brandT * 0.35} />
+            const isActiveHop = i === activeIdx;
+            const showPersistent = elapsed >= 23.5;
+            if (!isActiveHop && !showPersistent) return null;
+
+            const op = isActiveHop
+              ? cinWindow(elapsed, HOP_START + HOP_SEQUENCE.indexOf(i) * (HOP_DURATION + HOP_DWELL) + HOP_DURATION * 0.65, 0.25, HOP_DURATION * 0.35 + HOP_DWELL - 0.25, 0.4)
+              : cinClamp01((elapsed - 23.5) / 1.5);
+
+            if (op <= 0.02) return null;
+
+            const [ox, oy] = cinTagOffset(n.tagDir, n.role === "forge" ? 24 : 18);
+            const anchor = (n.tagDir === "W" || n.tagDir === "NW" || n.tagDir === "SW") ? "end" : "start";
+            const isForge = n.role === "forge";
+
+            return (
+              <g key={"tag-" + n.id} opacity={op}
+                 transform={`translate(${n.x + ox}, ${n.y + oy})`}>
+                <text fontFamily="var(--f-mono, ui-monospace, monospace)"
+                  fontSize={isForge ? 9.5 : 8.5}
+                  letterSpacing="1.8"
+                  fontWeight={isForge ? 600 : 400}
+                  fill={isForge ? "oklch(92% 0.12 82)" : "oklch(90% 0.10 230)"}
+                  textAnchor={anchor}>
+                  {n.city.toUpperCase()}
+                </text>
+                {(isActiveHop || isForge) && (
+                  <text y="11" fontFamily="var(--f-mono, ui-monospace, monospace)"
+                    fontSize="7.5" letterSpacing="1.3"
+                    fill={isForge ? "oklch(72% 0.08 82)" : "oklch(66% 0.07 230)"}
+                    textAnchor={anchor}>
+                    {isForge ? "FORGE · INTEGRATION" : n.specialty.toUpperCase()}
+                  </text>
+                )}
+              </g>
+            );
+          });
+        })()}
+
+        {/* ── The single program pulse ────────────────────────── */}
+        {pulse && pulse.opacity > 0 && (
+          <g opacity={pulse.opacity}>
+            <circle cx={pulse.x} cy={pulse.y} r="16"
+              fill={pulse.phase === 4 ? "oklch(88% 0.13 82)" : "oklch(88% 0.14 230)"}
+              opacity="0.18" filter="url(#cin-glow-soft)" />
+            <circle cx={pulse.x} cy={pulse.y} r="4.5"
+              fill={pulse.phase === 4 ? "oklch(94% 0.13 82)" : "oklch(94% 0.12 230)"}
+              filter="url(#cin-glow)" />
+            <circle cx={pulse.x} cy={pulse.y} r="8" fill="none"
+              stroke={pulse.phase === 4 ? "oklch(88% 0.13 82)" : "oklch(88% 0.14 230)"}
+              strokeWidth="0.8" opacity="0.6">
+              <animate attributeName="r" values="6;13;6" dur="1.6s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.7;0;0.7" dur="1.6s" repeatCount="indefinite" />
+            </circle>
+          </g>
         )}
 
-        {/* HUD */}
+        {/* ── HUD ─────────────────────────────────────────────── */}
         <g fontFamily="var(--f-mono, ui-monospace, monospace)" fontSize="10" fill="oklch(50% 0.010 245)" letterSpacing="1.5">
           <text x="18" y="26">AAE · EU · SEQUENCE · REV 2026.04</text>
           <text x={CIN_VIEW_W - 18} y="26" textAnchor="end">
             T {elapsed.toFixed(1).padStart(4, "0")} / {CIN_DURATION.toFixed(1)}
           </text>
-          <text x="18" y={CIN_VIEW_H - 18}>SCENE {currentScene.id} / {CIN_SCENES.length}</text>
-          <text x={CIN_VIEW_W - 18} y={CIN_VIEW_H - 18} textAnchor="end">
-            {countLit} / {CIN_NODES.length} REGIONS ACTIVE
+          <text x="18" y={CIN_VIEW_H - 18}>
+            PHASE {currentPhase.id} / {PHASES.length} · {currentPhase.eyebrow}
           </text>
         </g>
       </svg>
 
-      {/* ── Scene 6 brand layer (HTML over SVG so it uses real fonts + image) ── */}
-      {brandT > 0 && (
-        <div style={{
+      {/* ── Phase text overlay (operational language only) ────── */}
+      <div
+        key={currentPhase.id}
+        style={{
           position: "absolute",
-          inset: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          flexDirection: "column",
+          left: "50%",
+          bottom: "11%",
+          transform: "translateX(-50%)",
+          width: "min(820px, 88%)",
+          textAlign: "center",
           pointerEvents: "none",
-          opacity: brandT,
-          transform: `translateY(${(1 - brandT) * 10}px)`,
+          animation: "cinFadeIn 0.9s cubic-bezier(0.22,0.61,0.36,1) both",
+        }}
+      >
+        <div style={{
+          fontFamily: "var(--f-mono, ui-monospace, monospace)",
+          fontSize: 11,
+          letterSpacing: "0.22em",
+          color: "oklch(72% 0.14 235)",
+          marginBottom: 14,
+          textTransform: "uppercase",
         }}>
-          {brandMarkSrc ? (
-            <img src={brandMarkSrc} alt=""
-              style={{ width: "clamp(56px, 7vw, 86px)", height: "auto", marginBottom: 22, filter: "drop-shadow(0 0 24px oklch(72% 0.14 235 / 0.45))" }} />
-          ) : (
-            <svg viewBox="0 0 40 40" fill="none"
-              style={{ width: "clamp(56px, 7vw, 86px)", height: "auto", marginBottom: 22, filter: "drop-shadow(0 0 24px oklch(72% 0.14 235 / 0.45))" }}>
-              <path d="M20 3 L34 34 L6 34 Z" stroke="var(--text-hi, oklch(95% 0.004 250))" strokeWidth="1.4"/>
-              <path d="M20 14 L28 30 L12 30 Z" fill="var(--accent, oklch(72% 0.14 235))" opacity="0.9"/>
-              <circle cx="20" cy="22" r="1.6" fill="var(--bg-void, oklch(11% 0.008 250))"/>
-            </svg>
-          )}
-          <div style={{
-            fontFamily: "var(--f-mono, ui-monospace, monospace)",
-            fontSize: 11,
-            letterSpacing: "0.28em",
-            color: "oklch(72% 0.14 235)",
-            textTransform: "uppercase",
-            marginBottom: 16,
-          }}>
-            Asgard Aerospace · Europe
-          </div>
-          <div style={{
-            fontFamily: "var(--f-display, 'Archivo', sans-serif)",
-            fontSize: "clamp(28px, 4.2vw, 56px)",
-            fontWeight: 500,
-            letterSpacing: "-0.028em",
-            lineHeight: 1.02,
-            color: "oklch(95% 0.004 250)",
-            textAlign: "center",
-            maxWidth: "min(820px, 88%)",
-          }}>
-            A continental<br />manufacturing<br />infrastructure layer.
-          </div>
-          <div style={{
-            marginTop: 28,
-            fontFamily: "var(--f-mono, ui-monospace, monospace)",
-            fontSize: 11,
-            letterSpacing: "0.22em",
-            color: "oklch(62% 0.008 250)",
-            textTransform: "uppercase",
-            textAlign: "center",
-          }}>
-            {CIN_NODES.length} Regions · Unlimited Routes · 1 Execution Layer
-          </div>
+          {currentPhase.eyebrow}
         </div>
-      )}
-
-      {/* ── Scene overlay text (scenes 1–5) ───────────────────────── */}
-      {brandT < 0.5 && (
-        <div
-          key={currentScene.id + "-" + (currentScene.id === 3 ? calloutIdx : 0)}
-          style={{
-            position: "absolute",
-            left: "50%",
-            bottom: "11%",
-            transform: "translateX(-50%)",
-            width: "min(820px, 88%)",
-            textAlign: "center",
-            pointerEvents: "none",
-            animation: "cinFadeIn 0.7s cubic-bezier(0.22,0.61,0.36,1) both",
-            opacity: 1 - brandT,
-          }}
-        >
-          <div style={{
-            fontFamily: "var(--f-mono, ui-monospace, monospace)",
-            fontSize: 11,
-            letterSpacing: "0.22em",
-            color: "oklch(72% 0.14 235)",
-            marginBottom: 14,
-            textTransform: "uppercase",
-          }}>
-            {currentScene.eyebrow}
-          </div>
-          <div style={{
-            fontFamily: "var(--f-display, 'Archivo', sans-serif)",
-            fontSize: "clamp(24px, 3.2vw, 44px)",
-            fontWeight: 500,
-            letterSpacing: "-0.022em",
-            lineHeight: 1.08,
-            color: "oklch(95% 0.004 250)",
-          }}>
-            {currentScene.id === 3 && calloutIdx >= 0
-              ? `${CIN_NODES[calloutIdx].city} · ${CIN_NODES[calloutIdx].specialty}`
-              : currentScene.title}
-          </div>
-          {currentScene.id === 3 && (
-            <div style={{
-              marginTop: 14,
-              fontFamily: "var(--f-body, system-ui, sans-serif)",
-              fontSize: "clamp(13px, 1.05vw, 16px)",
-              color: "oklch(70% 0.010 245)",
-              letterSpacing: "0.01em",
-            }}>
-              Every region contributes what it does best.
-            </div>
-          )}
+        <div style={{
+          fontFamily: "var(--f-display, 'Archivo', sans-serif)",
+          fontSize: "clamp(24px, 3.2vw, 44px)",
+          fontWeight: 500,
+          letterSpacing: "-0.022em",
+          lineHeight: 1.12,
+          color: "oklch(95% 0.004 250)",
+        }}>
+          {currentPhase.title}
         </div>
-      )}
+      </div>
 
-      {/* ── Skip button ──────────────────────────────────────────── */}
+      {/* ── Skip button ───────────────────────────────────────── */}
       {onSkip && (
         <button
           onClick={onSkip}
@@ -762,7 +758,7 @@ function AsgardSequence({
 
       <style>{`
         @keyframes cinFadeIn {
-          from { opacity: 0; transform: translate(-50%, 8px); }
+          from { opacity: 0; transform: translate(-50%, 10px); }
           to   { opacity: 1; transform: translate(-50%, 0);   }
         }
       `}</style>
