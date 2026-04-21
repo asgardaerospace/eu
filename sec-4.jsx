@@ -5,29 +5,50 @@ const { useState: useState4 } = React;
 // OPERATING MODEL / ENTITY
 // ============================================================
 function Operating() {
+  const entityCards = [
+    ["European Operating Entity", "Dedicated EU-based structure aligned with regional regulation and public investment frameworks."],
+    ["Regional Ownership Model", "Flexible capital participation aligned with regional deployment priorities."],
+  ];
+  const systemCards = [
+    ["Shared Technical Architecture", "Unified platform, compliance logic, and execution layer across regions."],
+    ["IP Governance Framework", "Shared technical IP with localized operational control where required."],
+    ["Government & Industrial Integration", "Structured pathways for public agencies, primes, and institutional partners."],
+  ];
   return (
-    <section className="sec-pad" id="operating" style={{background: "var(--bg-base)"}}>
+    <section className="sec-pad ops-section" id="operating">
       <div className="shell">
         <SecHead tag="10 · Operating Model & Entity" meta="Sovereign · Shared · Autonomous"
-          title="Dedicated European entity. Shared architecture. Regional autonomy."
+          title={<>Dedicated European entity<br/>Shared architecture<br/>Regional autonomy</>}
           lede="Asgard Aerospace Europe is structured as a dedicated operating entity with local operational control and a shared technical architecture. The design preserves sovereign-capability requirements without fragmenting the underlying execution layer."
         />
 
-        <div className="ops-grid">
-          {[
-            ["A", "European operating entity", "Dedicated European vehicle, structured to align with regional regulatory frameworks and public investment mechanisms.", false],
-            ["B", "Shared architecture", "Platform, compliance logic, and execution layer are continuous with the U.S. operation. Integration without fragmentation.", false],
-            ["C", "Regional ownership flexibility", "Capital structure accommodates strategic regional participation where such participation accelerates deployment.", false],
-            ["D", "Shared IP framework", "Technical IP is governed under a shared framework with regional operational autonomy, sovereign where it matters, unified where it scales.", true],
-            ["E", "Government & industrial pathways", "Formal participation structures for public agencies, regional industrial partners, and institutional investors.", true],
-          ].map(([n, t, d, wide], i) => (
-            <div key={n} className={"ops-cell" + (wide ? " wide" : "")}>
-              <div className="n">FRAME · {n}</div>
-              <h5>{t}</h5>
-              <p>{d}</p>
-            </div>
-          ))}
+        <div className="ops-group">
+          <div className="ops-group-label">Entity Structure</div>
+          <div className="ops-grid-v2 cols-2">
+            {entityCards.map(([t, d]) => (
+              <div key={t} className="ops-card">
+                <div className="ops-card-accent"/>
+                <h5>{t}</h5>
+                <p>{d}</p>
+              </div>
+            ))}
+          </div>
         </div>
+
+        <div className="ops-group">
+          <div className="ops-group-label">System Integration</div>
+          <div className="ops-grid-v2 cols-3">
+            {systemCards.map(([t, d]) => (
+              <div key={t} className="ops-card">
+                <div className="ops-card-accent"/>
+                <h5>{t}</h5>
+                <p>{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="ops-reinforce">This structure enables sovereign alignment without fragmenting execution.</div>
       </div>
     </section>
   );
