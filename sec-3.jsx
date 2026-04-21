@@ -57,7 +57,7 @@ function Network() {
           </aside>
         </div>
 
-        <div className="coord" style={{marginTop: 40, marginBottom: 8}}>Activation layers · each phase is gated, not timed</div>
+        <div className="coord" style={{marginTop: 14, marginBottom: 4}}>Activation layers · each phase is gated, not timed</div>
         <div className="phase-strip">
           {[
             {p: 1, t: "Anchor Node Selection",   o: "Identify and validate the candidate command layer.",              g: "Candidate HQ selected; institutional + compliance alignment confirmed."},
@@ -413,7 +413,7 @@ function Facility() {
             <p>
               {size === "initial"
                 ? "The initial footprint establishes operational presence, validates workflows, and supports early program execution. A lean, high-skill convergence node — integration-focused, not mass production — with secure production environments and initial composites capability."
-                : "The scaled footprint expands integration capacity, adds multi-program cells, and brings full inspection and certification infrastructure online. Capacity benchmark of 75 to 150 personnel and €55M to €72M of annual throughput per Forge."}
+                : "The scaled footprint expands integration capacity, adds multi-program cells, and brings full inspection and certification infrastructure online. Capacity benchmark of 75 to 150 personnel and €55M to €75M of annual throughput per Forge."}
             </p>
             <div className="stats">
               <div className="stat">
@@ -421,8 +421,8 @@ function Facility() {
                 <div className="l">{size === "initial" ? "Initial operational team" : "Scaled Forge team"}</div>
               </div>
               <div className="stat">
-                <div className="n">{size === "initial" ? "Up to €18M" : "€55 to 72M"}</div>
-                <div className="l">Annual throughput</div>
+                <div className="n">{size === "initial" ? "€25 to 40M" : "€55 to 75M"}</div>
+                <div className="l">{size === "initial" ? "Early-stage validated throughput" : "Multi-program integrated throughput per Forge"}</div>
               </div>
             </div>
           </div>
