@@ -13,7 +13,7 @@ function Roadmap() {
     <section className="sec-pad" id="roadmap" style={{background: "var(--bg-base)"}}>
       <div className="shell">
         <SecHead tag="14 · Deployment Roadmap" meta="5 Phases · 0 → Year 4+"
-          title="From HQ landing to one-day continental coverage."
+          title="From HQ landing to full continental coverage."
           lede="The European deployment unfolds in five disciplined phases. Each phase unlocks the next through operational proof, supplier density, routed production, compliance continuity, and economic justification for facility expansion."
         />
 

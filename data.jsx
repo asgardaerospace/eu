@@ -59,21 +59,21 @@ const REGIONS_DATA = [
 ];
 
 const PHASES_US = [
-  { id: "P1", title: "Platform & team formation",
-    objective: "Define system architecture and assemble the core operational leadership team.",
-    gate: "Launchbelt routing framework and operational doctrine established." },
-  { id: "P2", title: "Supplier network activation",
-    objective: "Capability-map and onboard qualified manufacturing partners into the routing layer.",
-    gate: "Certified supplier pool integrated under shared compliance continuity." },
-  { id: "P3", title: "Routed production validation",
-    objective: "Prove multi-node coordinated production with continuous certification across handoffs.",
-    gate: "Sustained throughput across distributed suppliers under a single configuration authority." },
-  { id: "P4", title: "Forge activation",
-    objective: "Deploy the first controlled integration facility against validated routing density.",
-    gate: "Forge operational capacity aligned to demonstrated network throughput." },
-  { id: "P5", title: "Scale & density expansion",
-    objective: "Grow program count, supplier density, and Forge capacity against validated demand.",
-    gate: "Expansion triggered only by sustained throughput, never forecast." },
+  { n: 1, title: "Platform Foundation",
+    purpose: "Define system architecture and assemble the core operational leadership team.",
+    unlock: "Launchbelt routing framework and operational doctrine established." },
+  { n: 2, title: "Supplier Network Activation",
+    purpose: "Capability-map and onboard qualified manufacturing partners into the routing layer.",
+    unlock: "Certified supplier pool integrated under shared compliance continuity." },
+  { n: 3, title: "Routed Production Validation",
+    purpose: "Prove multi-node coordinated production with continuous certification across handoffs.",
+    unlock: "Sustained throughput across distributed suppliers under a single configuration authority." },
+  { n: 4, title: "Forge Activation",
+    purpose: "Deploy the first controlled integration facility against validated routing density.",
+    unlock: "Forge operational capacity aligned to demonstrated network throughput." },
+  { n: 5, title: "Network Expansion",
+    purpose: "Grow program count, supplier density, and Forge capacity against validated demand.",
+    unlock: "Expansion triggered only by sustained throughput, never forecast." },
 ];
 
 const PHASES_EU = [
@@ -81,7 +81,7 @@ const PHASES_EU = [
     prose: "European entity formation, HQ site alignment, and initial partnership frameworks with regional agencies and institutional stakeholders.",
     bullets: ["Entity structuring under European operating vehicle", "HQ site selection and alignment", "Regional government and investment partner alignment", "Strategic briefing of key stakeholders"] },
   { id: "02", window: "Months 3 to 12", title: "First facility & supplier activation",
-    prose: "Initial Forge footprint (30,000 to 50,000 sq ft) comes online. Qualified regional supplier network is onboarded into the execution layer.",
+    prose: "Initial Forge footprint (≈ 2,800 to 4,600 m²) comes online. Qualified regional supplier network is onboarded into the execution layer.",
     bullets: ["Retrofit or buildout of initial facility", "Compliance and traceability systems live from day one", "Supplier capability mapping and onboarding", "First routed production volume"] },
   { id: "03", window: "Months 12 to 24", title: "Secondary hubs",
     prose: "Deployment of additional hubs across complementary regions to extend geographic coverage and increase throughput density.",
@@ -89,8 +89,8 @@ const PHASES_EU = [
   { id: "04", window: "Year 2 to 4", title: "Continental node expansion",
     prose: "Hub-and-spoke architecture scales across central and eastern corridors. Compounding network effects increase supplier utilization and routing efficiency.",
     bullets: ["Central Europe expansion (DE / PL corridor)", "Southern corridor activation (IT)", "Automation maturity within Launchbelt routing", "Regional specialization patterns emerge"] },
-  { id: "05", window: "Year 4+", title: "One-day continental coverage",
-    prose: "Network density reaches the point where every major European industrial region operates within one-day ground-transport reach of an Asgard node.",
+  { id: "05", window: "Year 4+", title: "Full continental coverage",
+    prose: "Network density reaches the point where every major European industrial region operates within a single-day ground transport radius of an Asgard node.",
     bullets: ["Full continental footprint", "Unified European manufacturing system", "Large-scale defense and aerospace program capacity", "Transatlantic industrial integration"] }
 ];
 
@@ -115,8 +115,8 @@ const KB_CATEGORIES = [
     key: "facility", label: "Facility Requirements", meta: "DOC-02",
     items: [
       { q: "Facility footprint and scaling model", a: [
-        "Initial deployment is sized at 30,000 to 50,000 sq ft, supporting integration, secure production environments, and initial composites and thermoplastics capability.",
-        "Scaled facilities reach 60,000 to 100,000 sq ft with expanded integration capacity, multi-program production cells, and full inspection and certification infrastructure. Capacity benchmark: 150 to 250 employees and $100M, $125M of annual throughput per scaled node."
+        "Initial deployment is sized at ≈ 2,800 to 4,600 m², supporting integration, secure production environments, and initial composites and thermoplastics capability.",
+        "Scaled facilities reach ≈ 5,600 to 9,300 m² with expanded integration capacity, multi-program production cells, and full inspection and certification infrastructure. Capacity benchmark: 150 to 250 employees and €90M to €115M of annual throughput per scaled node."
       ]},
       { q: "Functional zones", a: [
         "Integration and assembly, composites and thermoplastics, machining and fabrication support, inspection and metrology, and secure production areas. Each zone is defined with explicit compliance and access controls rather than repurposed generic floor space."
@@ -147,7 +147,7 @@ const KB_CATEGORIES = [
         "Initial team of 20 to 35 personnel, scaling to 150 to 250 employees per fully scaled facility. Roles are concentrated in advanced-manufacturing disciplines: aerospace and manufacturing engineers, skilled technicians, quality and compliance specialists, and supply chain operations."
       ]},
       { q: "Production throughput", a: [
-        "Each scaled facility targets $100M to $125M in annual aerospace production output, driven by high-mix, low-volume manufacturing, multi-program execution, and integration of distributed supplier production."
+        "Each scaled facility targets €90M to €115M in annual aerospace production output, driven by high-mix, low-volume manufacturing, multi-program execution, and integration of distributed supplier production."
       ]},
       { q: "Multiplier effect", a: [
         "The majority of economic value is generated through activation of the regional manufacturing base: increased SME utilization, attraction of new aerospace programs, workforce development, and durable industrial positioning."
@@ -175,7 +175,7 @@ const KB_CATEGORIES = [
         "Hubs are Asgard facilities operating as integration and control nodes. Spokes are regional supplier networks. Each hub is positioned to coordinate production within an 8 to 10 hour ground-transport radius."
       ]},
       { q: "End-state vision", a: [
-        "A continental manufacturing system where every major industrial region operates within one-day ground coverage of an Asgard hub, and production flows continuously across regions under a unified execution layer."
+        "A continental manufacturing system where every major industrial region operates within a single-day ground transport radius of an Asgard hub, and production flows continuously across regions under a unified execution layer."
       ]},
       { q: "Indicative hub regions", a: [
         "Iberian Peninsula, Southern France, Benelux / Northern Europe, Central Europe (DE/PL corridor), and Southern Europe. Hub selection is driven by supplier density, workforce availability, aerospace cluster presence, logistics connectivity, and government alignment."

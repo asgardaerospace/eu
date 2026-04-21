@@ -94,28 +94,45 @@
   display: grid; grid-template-columns: repeat(5, 1fr);
   gap: 0; border: 1px solid var(--line); margin-top: 40px;
 }
-.phase { padding: 32px 24px; border-right: 1px solid var(--line); position: relative; }
+.phase {
+  padding: 36px 26px 32px; border-right: 1px solid var(--line);
+  position: relative; display: flex; flex-direction: column;
+}
 .phase:last-child { border-right: 0; }
-.phase .num {
-  font-family: var(--f-mono); font-size: 10px; color: var(--text-faint);
-  letter-spacing: 0.14em; display: flex; justify-content: space-between; margin-bottom: 16px;
+
+.phase .phase-progress {
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--line); overflow: hidden;
 }
-.phase .num strong { color: var(--accent); font-weight: 500; }
+.phase .phase-progress-fill {
+  position: absolute; inset: 0 auto 0 0;
+  width: calc(100% * ((var(--phase-idx) + 1) / var(--phase-total)));
+  background: linear-gradient(90deg, var(--accent), oklch(72% 0.14 235 / 0.55));
+  opacity: 0.85;
+}
+
+.phase .phase-head { margin-bottom: 24px; }
+.phase .phase-eyebrow {
+  font-family: var(--f-mono); font-size: 10.5px;
+  color: var(--accent); letter-spacing: 0.18em;
+  text-transform: uppercase; margin-bottom: 10px;
+}
 .phase h5 {
-  font-family: var(--f-display); font-size: 17px; font-weight: 500;
-  color: var(--text-hi); letter-spacing: -0.01em; line-height: 1.2; margin-bottom: 12px;
-  min-height: 42px;
+  font-family: var(--f-display); font-size: 19px; font-weight: 500;
+  color: var(--text-hi); letter-spacing: -0.01em; line-height: 1.22;
+  min-height: 46px;
 }
-.phase p { font-size: 13px; color: var(--text-dim); line-height: 1.45; }
-.phase .phase-field { margin-top: 16px; }
+.phase p { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+.phase .phase-field { margin-top: 18px; }
 .phase .phase-field + .phase-field {
-  margin-top: 14px; padding-top: 14px;
-  border-top: 1px dashed var(--line);
+  margin-top: 18px; padding-top: 18px;
+  border-top: 1px solid var(--line);
 }
 .phase .phase-lbl {
-  font-family: var(--f-mono); font-size: 9.5px;
-  color: var(--text-faint); letter-spacing: 0.16em;
-  text-transform: uppercase; margin-bottom: 6px;
+  font-family: var(--f-mono); font-size: 10.5px; font-weight: 500;
+  color: var(--text-hi); letter-spacing: 0.14em;
+  text-transform: uppercase; margin-bottom: 8px;
+  opacity: 0.92;
 }
 
 @media (max-width: 900px) { .phases { grid-template-columns: 1fr 1fr; } .phase { border-right: 0; border-bottom: 1px solid var(--line); } }

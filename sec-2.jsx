@@ -91,16 +91,21 @@ function UsExecution() {
 
         <div className="phases">
           {PHASES_US.map((p, i) => (
-            <div className="phase" key={p.id}>
-              <div className="num"><span>{p.id}</span><strong>PHASE</strong></div>
-              <h5>{p.title}</h5>
-              <div className="phase-field">
-                <div className="phase-lbl">Objective</div>
-                <p>{p.objective}</p>
+            <div className="phase" key={p.n} style={{"--phase-idx": i, "--phase-total": PHASES_US.length}}>
+              <div className="phase-progress" aria-hidden="true">
+                <span className="phase-progress-fill" />
+              </div>
+              <div className="phase-head">
+                <div className="phase-eyebrow">Phase {p.n}</div>
+                <h5>{p.title}</h5>
               </div>
               <div className="phase-field">
-                <div className="phase-lbl">Validation gate</div>
-                <p>{p.gate}</p>
+                <div className="phase-lbl">Purpose</div>
+                <p>{p.purpose}</p>
+              </div>
+              <div className="phase-field">
+                <div className="phase-lbl">Unlock Condition</div>
+                <p>{p.unlock}</p>
               </div>
             </div>
           ))}

@@ -115,7 +115,7 @@ function Hero() {
             </div>
             <div>
               <div className="coord">Network End-State</div>
-              <div className="hero-meta-val">One-day ground reach<br/>across major EU corridors</div>
+              <div className="hero-meta-val">Single-day ground transport radius<br/>across major EU corridors</div>
             </div>
           </div>
         </div>

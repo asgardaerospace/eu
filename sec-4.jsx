@@ -121,7 +121,7 @@ function Impact() {
           </div>
           <div className="impact-cell">
             <div className="coord">DIRECT · Throughput</div>
-            <div className="big">$100 to 125<small>M / yr</small></div>
+            <div className="big">€90 to 115<small>M / yr</small></div>
             <div className="unit">Annual aerospace production output · scaled facility</div>
             <p className="narr">High-mix, low-volume manufacturing. Multi-program execution. Integration of distributed supplier production under a unified execution layer.</p>
           </div>

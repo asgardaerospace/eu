@@ -16,7 +16,7 @@ function Network() {
       <div className="shell">
         <SecHead tag="06 · Continental Network Strategy" meta="Distributed · Gated Activation"
           title="Distributed production. Controlled execution. A network, not a site."
-          lede="The architecture is fixed; the locations are selected. Each node is a control point in a continental manufacturing system — a candidate anchor, Forge, or network node activated only when routing density, compliance continuity, and regional alignment clear the gate. Every major European industrial corridor resolves into one-day reach of a system node, regardless of which specific regions enter first."
+          lede="The architecture is fixed; the locations are selected. Each node is a control point in a continental manufacturing system — a candidate anchor, Forge, or network node activated only when routing density, compliance continuity, and regional alignment clear the gate. Every major European industrial corridor resolves into a single-day ground transport radius of a system node, regardless of which specific regions enter first."
         />
 
         <div className="net-wrap">
@@ -64,7 +64,7 @@ function Network() {
             {p: 2, t: "First Forge Activation",  o: "Stand up the first integration + certification control point.",   g: "First Forge operational against validated supplier density."},
             {p: 3, t: "Multi-Node Routing",      o: "Route programs across more than one Forge under one config.",     g: "Sustained cross-node production under single configuration authority."},
             {p: 4, t: "Network Densification",   o: "Add nodes where routing load exceeds regional capacity.",          g: "Network utilization and routing throughput exceed single-node limits."},
-            {p: 5, t: "Continental Coverage",    o: "Close the coverage lattice across major industrial corridors.",    g: "Every major corridor within one-day ground reach of a system node."},
+            {p: 5, t: "Continental Coverage",    o: "Close the coverage lattice across major industrial corridors.",    g: "Every major corridor within a single-day ground transport radius of a system node."},
           ].map(x => (
             <button key={x.p} className={phase===x.p?"on":""} onClick={() => setPhase(x.p)}>
               <span>Phase {x.p} · Gate {x.p}</span>
@@ -361,7 +361,7 @@ function Facility() {
         <div className="facility">
           <div className="facility-diagram">
             <span className="fd-lbl tl">AAE-FACILITY-01 · PLAN</span>
-            <span className="fd-lbl tr">{size === "initial" ? "30 to 50k SQ FT" : "60 to 100k SQ FT"}</span>
+            <span className="fd-lbl tr">{size === "initial" ? "≈ 2,800 to 4,600 m²" : "≈ 5,600 to 9,300 m²"}</span>
             <span className="fd-lbl bl">SCHEMATIC</span>
             <span className="fd-lbl br">REV 2026.04</span>
 
@@ -405,15 +405,15 @@ function Facility() {
           <div className="facility-info">
             <div className="coord">Footprint scale</div>
             <div className="size-toggle">
-              <button className={size==="initial"?"on":""} onClick={()=>setSize("initial")}>Initial · 30 to 50k</button>
-              <button className={size==="scaled"?"on":""} onClick={()=>setSize("scaled")}>Scaled · 60 to 100k</button>
+              <button className={size==="initial"?"on":""} onClick={()=>setSize("initial")}>Initial · 2.8 to 4.6k m²</button>
+              <button className={size==="scaled"?"on":""} onClick={()=>setSize("scaled")}>Scaled · 5.6 to 9.3k m²</button>
             </div>
 
             <h3>{size === "initial" ? "Initial deployment" : "Scaled operations"}</h3>
             <p>
               {size === "initial"
                 ? "The initial footprint establishes operational presence, validates workflows, and supports early program execution. Sized for proof rather than speculative volume, with integration, secure production environments, and initial composites capability."
-                : "The scaled footprint expands integration capacity, adds multi-program cells, and brings full inspection and certification infrastructure online. Capacity benchmark of 150 to 250 employees and $100M, $125M of annual throughput per node."}
+                : "The scaled footprint expands integration capacity, adds multi-program cells, and brings full inspection and certification infrastructure online. Capacity benchmark of 150 to 250 employees and €90M to €115M of annual throughput per node."}
             </p>
             <div className="stats">
               <div className="stat">
@@ -421,7 +421,7 @@ function Facility() {
                 <div className="l">Direct employment</div>
               </div>
               <div className="stat">
-                <div className="n">{size === "initial" ? "Up to $25M" : "$100 to 125M"}</div>
+                <div className="n">{size === "initial" ? "Up to €22M" : "€90 to 115M"}</div>
                 <div className="l">Annual throughput</div>
               </div>
             </div>
