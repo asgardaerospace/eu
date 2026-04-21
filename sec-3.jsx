@@ -14,9 +14,9 @@ function Network() {
   return (
     <section className="sec-pad" id="network">
       <div className="shell">
-        <SecHead tag="06 · Continental Network Strategy" meta="Hub-and-Spoke · Distributed"
-          title="One continent. Four Forges. A coordinated execution network."
-          lede="Europe is not served by one factory. It is served by a routed network of Forges, the control points of the system, each anchoring supplier density within an 8 to 10 hour ground radius. Forges converge work, hold certification authority, and protect IP; Launchbelt routes between them. Every major EU industrial corridor comes within one-day reach of an Asgard Forge."
+        <SecHead tag="06 · Continental Network Strategy" meta="Distributed · Gated Activation"
+          title="Distributed production. Controlled execution. A network, not a site."
+          lede="The architecture is fixed; the locations are selected. Each node is a control point in a continental manufacturing system — a candidate anchor, Forge, or network node activated only when routing density, compliance continuity, and regional alignment clear the gate. Every major European industrial corridor resolves into one-day reach of a system node, regardless of which specific regions enter first."
         />
 
         <div className="net-wrap">
@@ -26,21 +26,21 @@ function Network() {
           </div>
 
           <aside className="net-panel">
-            <div className="meta"><span>Node · {node.id}</span><span>{node.country}</span></div>
-            <h3>{node.name}</h3>
+            <div className="meta"><span>Node · {node.id}</span><span>Selected candidate</span></div>
+            <h3>Node Profile</h3>
             <div className="tagrow">
-              {node.role === "hq" && <span className="tag hq">● HQ</span>}
-              {node.role === "hub" && <span className="tag on">● Active Hub</span>}
-              {node.role === "planned" && <span className="tag">◌ Planned</span>}
-              <span className="tag">Phase {node.phase}</span>
+              {node.role === "candidate" && <span className="tag on">● Candidate HQ</span>}
+              {node.role === "forge"     && <span className="tag on">● Forge Node</span>}
+              {node.role === "planned"   && <span className="tag">◌ Network Node</span>}
+              <span className="tag">{node.status}</span>
             </div>
             <p>{node.roleLabel}</p>
 
             <dl>
+              <div><dt>Role</dt><dd>{node.role === "candidate" ? "Candidate HQ" : node.role === "forge" ? "Forge Node" : "Network Node"}</dd></div>
+              <div><dt>Status</dt><dd>{node.status}</dd></div>
               <div><dt>Radius</dt><dd>8 to 10 hr</dd></div>
-              <div><dt>Topology</dt><dd>Hub-spoke</dd></div>
-              <div><dt>Footprint</dt><dd>30 to 100k sq ft</dd></div>
-              <div><dt>Throughput</dt><dd>$100 to 125M</dd></div>
+              <div><dt>Topology</dt><dd>Distributed · routed</dd></div>
             </dl>
 
             <div className="coord" style={{marginTop: 8}}>View mode</div>
@@ -50,25 +50,27 @@ function Network() {
               <button className={mode==="flow"?"on":""} onClick={()=>setMode("flow")}>Program Flow</button>
             </div>
             <p className="mode-hint">
-              {mode === "network"  && "Inter-forge routes activate as phases advance."}
-              {mode === "coverage" && "8 to 10 hour ground-transport radius around each operational forge."}
-              {mode === "flow"     && "One program moving: suppliers → forge → HQ delivery."}
+              {mode === "network"  && "Inter-node routes activate as gates clear."}
+              {mode === "coverage" && "8 to 10 hour ground-transport radius around each activated node."}
+              {mode === "flow"     && "One program moving: suppliers → Forge → command layer."}
             </p>
           </aside>
         </div>
 
-        <div className="coord" style={{marginTop: 40, marginBottom: 8}}>Deployment phase selector · scrub to advance network</div>
+        <div className="coord" style={{marginTop: 40, marginBottom: 8}}>Activation layers · each phase is gated, not timed</div>
         <div className="phase-strip">
           {[
-            {p: 1, t: "HQ landing", w: "Months 0 to 3"},
-            {p: 2, t: "First hubs", w: "Months 3 to 12"},
-            {p: 3, t: "Secondary hubs", w: "Months 12 to 24"},
-            {p: 4, t: "Central EU", w: "Year 2 to 4"},
-            {p: 5, t: "One-day coverage", w: "Year 4+"},
+            {p: 1, t: "Anchor Node Selection",   o: "Identify and validate the candidate command layer.",              g: "Candidate HQ selected; institutional + compliance alignment confirmed."},
+            {p: 2, t: "First Forge Activation",  o: "Stand up the first integration + certification control point.",   g: "First Forge operational against validated supplier density."},
+            {p: 3, t: "Multi-Node Routing",      o: "Route programs across more than one Forge under one config.",     g: "Sustained cross-node production under single configuration authority."},
+            {p: 4, t: "Network Densification",   o: "Add nodes where routing load exceeds regional capacity.",          g: "Network utilization and routing throughput exceed single-node limits."},
+            {p: 5, t: "Continental Coverage",    o: "Close the coverage lattice across major industrial corridors.",    g: "Every major corridor within one-day ground reach of a system node."},
           ].map(x => (
             <button key={x.p} className={phase===x.p?"on":""} onClick={() => setPhase(x.p)}>
-              <span>Phase {x.p} · {x.w}</span>
+              <span>Phase {x.p} · Gate {x.p}</span>
               <strong>{x.t}</strong>
+              <em style={{display:"block", fontStyle:"normal", opacity:0.72, marginTop:6, fontSize:11, lineHeight:1.4}}>{x.o}</em>
+              <em style={{display:"block", fontStyle:"normal", opacity:0.55, marginTop:4, fontSize:10, lineHeight:1.4}}>Gate: {x.g}</em>
             </button>
           ))}
         </div>

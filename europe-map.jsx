@@ -11,17 +11,21 @@ const { useState, useEffect, useRef, useMemo } = React;
 
 // Real lat/lon for every node. Projected live using the same
 // projection as the coastlines so nodes sit on real cities.
+// Node roles are system roles, not location commitments:
+//   candidate — candidate HQ / command layer under evaluation
+//   forge     — candidate Forge node (integration + certification authority)
+//   planned   — candidate network node in the coverage lattice
 const NODES = [
-  { id: "AAE-N01", name: "Barcelona · Catalonia",   role: "hq",      phase: 1, country: "ES", lon:  2.17, lat: 41.39, roleLabel: "European HQ · Command Layer" },
-  { id: "AAE-N02", name: "Basque Country",          role: "hub",     phase: 2, country: "ES", lon: -2.68, lat: 43.26, roleLabel: "Primary Manufacturing Hub" },
-  { id: "AAE-N03", name: "Toulouse · Occitanie",    role: "hub",     phase: 3, country: "FR", lon:  1.44, lat: 43.60, roleLabel: "Aerospace Integration Node" },
-  { id: "AAE-N04", name: "Flanders",                role: "hub",     phase: 4, country: "BE", lon:  4.35, lat: 50.85, roleLabel: "Northern Logistics & Expansion Node" },
-  { id: "AAE-N05", name: "Rhine-Ruhr Corridor",     role: "planned", phase: 5, country: "DE", lon:  6.96, lat: 51.23, roleLabel: "Central EU Expansion" },
-  { id: "AAE-N06", name: "Po Valley · Milan",       role: "planned", phase: 5, country: "IT", lon:  9.19, lat: 45.46, roleLabel: "Southern Corridor" },
-  { id: "AAE-N07", name: "Munich",                  role: "planned", phase: 5, country: "DE", lon: 11.58, lat: 48.14, roleLabel: "Bavarian Aerospace" },
-  { id: "AAE-N08", name: "Silesia",                 role: "planned", phase: 5, country: "PL", lon: 18.92, lat: 50.26, roleLabel: "Eastern Density Node" },
-  { id: "AAE-N09", name: "Lisbon",                  role: "planned", phase: 5, country: "PT", lon: -9.14, lat: 38.72, roleLabel: "Atlantic Gateway" },
-  { id: "AAE-N10", name: "Stockholm",               role: "planned", phase: 5, country: "SE", lon: 18.06, lat: 59.33, roleLabel: "Nordic Node" },
+  { id: "AAE-N01", name: "Candidate · Iberian Anchor",     role: "candidate", phase: 1, country: "—", lon:  2.17, lat: 41.39, roleLabel: "Candidate HQ · Command Layer", status: "Deployment candidate" },
+  { id: "AAE-N02", name: "Candidate · Northern Iberia",    role: "forge",     phase: 2, country: "—", lon: -2.68, lat: 43.26, roleLabel: "Forge Node · Integration + Certification", status: "Deployment candidate" },
+  { id: "AAE-N03", name: "Candidate · Southern France",    role: "forge",     phase: 3, country: "—", lon:  1.44, lat: 43.60, roleLabel: "Forge Node · Integration + Certification", status: "Deployment candidate" },
+  { id: "AAE-N04", name: "Candidate · Northern Corridor",  role: "forge",     phase: 4, country: "—", lon:  4.35, lat: 50.85, roleLabel: "Forge Node · Integration + Certification", status: "Deployment candidate" },
+  { id: "AAE-N05", name: "Candidate · Central Corridor",   role: "planned",   phase: 5, country: "—", lon:  6.96, lat: 51.23, roleLabel: "Network Node · Coverage lattice",         status: "Phase-aligned" },
+  { id: "AAE-N06", name: "Candidate · Southern Corridor",  role: "planned",   phase: 5, country: "—", lon:  9.19, lat: 45.46, roleLabel: "Network Node · Coverage lattice",         status: "Phase-aligned" },
+  { id: "AAE-N07", name: "Candidate · Alpine Corridor",    role: "planned",   phase: 5, country: "—", lon: 11.58, lat: 48.14, roleLabel: "Network Node · Coverage lattice",         status: "Phase-aligned" },
+  { id: "AAE-N08", name: "Candidate · Eastern Corridor",   role: "planned",   phase: 5, country: "—", lon: 18.92, lat: 50.26, roleLabel: "Network Node · Coverage lattice",         status: "Phase-aligned" },
+  { id: "AAE-N09", name: "Candidate · Atlantic Edge",      role: "planned",   phase: 5, country: "—", lon: -9.14, lat: 38.72, roleLabel: "Network Node · Coverage lattice",         status: "Phase-aligned" },
+  { id: "AAE-N10", name: "Candidate · Nordic Edge",        role: "planned",   phase: 5, country: "—", lon: 18.06, lat: 59.33, roleLabel: "Network Node · Coverage lattice",         status: "Phase-aligned" },
 ];
 
 // Major European metros for the "city lights" layer. Each [lon, lat, brightness 1-3].
@@ -341,13 +345,12 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
       {!isFlow && !poster && visibleEdges.map(([a, b], i) => {
         const A = nodesProj[a], B = nodesProj[b];
         const d = `M ${A.x} ${A.y} L ${B.x} ${B.y}`;
-        const isHqEdge = a === 0 || b === 0;
         return (
           <g key={"e" + i}>
             <path d={d} fill="none"
               stroke="oklch(70% 0.12 230)"
-              strokeWidth={isHqEdge ? 1.1 : 0.8}
-              opacity={isHqEdge ? 0.7 : 0.45}/>
+              strokeWidth="0.9"
+              opacity="0.55"/>
             <circle r="2.4" fill="oklch(90% 0.12 230)" filter="url(#node-glow)">
               <animateMotion dur={`${3 + (i % 5) * 0.5}s`} repeatCount="indefinite" path={d}/>
             </circle>
@@ -375,16 +378,16 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
         );
       })}
 
-      {/* PROGRAM FLOW: HQ-bound delivery from each forge */}
-      {isFlow && nodesProj.filter((n, i) => visibleSet.has(i) && n.role !== "hq" && n.role !== "planned").map((forge, fi) => {
-        const HQ = nodesProj[0];
-        const d = `M ${forge.x} ${forge.y} L ${HQ.x} ${HQ.y}`;
+      {/* PROGRAM FLOW: routing into the candidate command layer */}
+      {isFlow && nodesProj.filter((n, i) => visibleSet.has(i) && n.role !== "candidate" && n.role !== "planned").map((forge, fi) => {
+        const anchor = nodesProj.find(n => n.role === "candidate") || nodesProj[0];
+        const d = `M ${forge.x} ${forge.y} L ${anchor.x} ${anchor.y}`;
         return (
           <g key={"flow" + fi}>
             <path d={d} fill="none"
-              stroke="oklch(84% 0.14 78)"
+              stroke="oklch(82% 0.14 230)"
               strokeWidth="1.1" opacity="0.7"/>
-            <circle r="3" fill="oklch(92% 0.14 78)" filter="url(#hq-glow)">
+            <circle r="3" fill="oklch(92% 0.12 230)" filter="url(#node-glow)">
               <animateMotion dur="3.2s" repeatCount="indefinite" path={d}/>
             </circle>
           </g>
@@ -442,7 +445,6 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
       {nodesProj.map((n, i) => {
         if (!visibleSet.has(i)) return null;
         const isActive  = active === i;
-        const isHq      = n.role === "hq";
         const isPlanned = n.role === "planned";
 
         // Poster mode: flat hierarchy. Everyone is a primary cyan node.
@@ -464,17 +466,12 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
           );
         }
 
-        const color     = isHq ? "oklch(86% 0.14 78)" : "oklch(82% 0.14 230)";
-        const dotR      = isHq ? 8 : isPlanned ? 4 : 5.5;
+        const color     = "oklch(82% 0.14 230)";
+        const dotR      = isPlanned ? 4 : 5.5;
         const ringR     = isActive ? 22 : 16;
 
         return (
           <g key={n.id} style={{ cursor: "pointer" }} onClick={() => setActive(i)}>
-            {/* HQ amber halo */}
-            {isHq && (
-              <circle cx={n.x} cy={n.y} r="36" fill="url(#hq-halo)"/>
-            )}
-
             {/* outer target ring */}
             <circle cx={n.x} cy={n.y} r={ringR}
               fill="none" stroke={color}
@@ -494,17 +491,16 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
               <circle cx={n.x} cy={n.y} r="10" fill="none"
                 stroke={color} strokeWidth="0.8" opacity="0.55">
                 <animate attributeName="r" values={`${ringR - 2};${ringR + 12};${ringR - 2}`}
-                  dur={isHq ? "2.6s" : "3.4s"} repeatCount="indefinite"/>
+                  dur="3.2s" repeatCount="indefinite"/>
                 <animate attributeName="opacity" values="0.7;0;0.7"
-                  dur={isHq ? "2.6s" : "3.4s"} repeatCount="indefinite"/>
+                  dur="3.2s" repeatCount="indefinite"/>
               </circle>
             )}
 
             {/* core dot */}
             <circle cx={n.x} cy={n.y} r={dotR} fill={color}
-              filter={isHq ? "url(#hq-glow)" : "url(#node-glow)"}
+              filter="url(#node-glow)"
               opacity={isPlanned ? 0.75 : 1}/>
-            {isHq && <circle cx={n.x} cy={n.y} r="3" fill="oklch(11% 0.010 250)"/>}
 
             {/* label */}
             {!poster && (!isPlanned || isActive) && (
