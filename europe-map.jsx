@@ -132,10 +132,16 @@ const POSTER_EXTRA = [
   { lon:  2.35, lat: 48.85 }, // Paris
 ];
 
+// Shared projector for overlays that need to place elements on the same
+// geographic canvas (e.g. ProgramFlow). Must match the non-poster projection.
+const SHARED_PROJECTION = makeProjection(false);
+window.projectEurope = (lon, lat) => SHARED_PROJECTION([lon, lat]);
+window.EUROPE_VIEW = { W: VIEW_W, H: VIEW_H };
+
 // ============================================================
 // MAP COMPONENT
 // ============================================================
-function EuropeMap({ phase, mode, active, setActive, poster = false }) {
+function EuropeMap({ phase, mode, active, setActive, poster = false, flowMode = false }) {
   const [geo, setGeo] = useState(null);
 
   useEffect(() => {
@@ -342,7 +348,7 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
       ))}
 
       {/* NETWORK EDGES, straight lines with traveling particles */}
-      {!isFlow && !poster && visibleEdges.map(([a, b], i) => {
+      {!isFlow && !poster && !flowMode && visibleEdges.map(([a, b], i) => {
         const A = nodesProj[a], B = nodesProj[b];
         const d = `M ${A.x} ${A.y} L ${B.x} ${B.y}`;
         return (
@@ -396,7 +402,7 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
 
       {/* GOLD FEEDER DOTS — small supplier points around each operational node,
           with tiny particle trails flowing inward */}
-      {nodesProj.map((n, i) => {
+      {!flowMode && nodesProj.map((n, i) => {
         if (!visibleSet.has(i)) return null;
         if (n.role === "planned" && !poster) return null;
         // deterministic scatter based on node id
@@ -503,7 +509,7 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
               opacity={isPlanned ? 0.75 : 1}/>
 
             {/* label */}
-            {!poster && (!isPlanned || isActive) && (
+            {!poster && !flowMode && (!isPlanned || isActive) && (
               <g transform={`translate(${n.x + ringR + 8}, ${n.y - 16})`}>
                 <rect x="-4" y="-11" width={n.name.length * 6.8 + 10} height="30"
                   fill="oklch(11% 0.010 250)" opacity={isActive ? 0.92 : 0.72}
@@ -520,7 +526,7 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
       })}
 
       {/* HUD CORNERS */}
-      {!poster && (
+      {!poster && !flowMode && (
         <g fontFamily="var(--f-mono)" fontSize="10" fill="oklch(50% 0.010 245)" letterSpacing="1.5">
           <text x="18" y="26">AAE · EU · REV 2026.04 · LIVE</text>
           <text x={VIEW_W - 18} y="26" textAnchor="end">PHASE {phase}/5</text>

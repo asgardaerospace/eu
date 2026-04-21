@@ -81,202 +81,533 @@ function Network() {
 
 // ============================================================
 // HOW A PROGRAM MOVES THROUGH THE NETWORK
+// Map-layered flow: intake → Launchbelt → distributed production →
+// inter-node routing → Forge convergence → delivery
 // ============================================================
+const PF_STAGES = [
+  {
+    id: "S01", name: "Program intake",
+    loc: "Customer · Program Request",
+    kicker: "REQUEST",
+    text: "Aerospace program requirements enter the system and are digitally defined. A single intake point registers the program against a routed execution plan.",
+    ops: ["Requirements + certifications captured", "Classification applied", "Program registered against plan"]
+  },
+  {
+    id: "S02", name: "System decomposition",
+    loc: "Launchbelt · orchestration layer",
+    kicker: "DECOMPOSE",
+    text: "Launchbelt decomposes the program into routable manufacturing packages and assigns them across the network. Routing paths appear as the system resolves capability, capacity, and compliance alignment.",
+    ops: ["Work packages parsed", "Capability + capacity matched", "Compliance-aware routing"]
+  },
+  {
+    id: "S03", name: "Distributed production",
+    loc: "Qualified suppliers · continental base",
+    kicker: "EXECUTE",
+    text: "Qualified suppliers across Europe execute production based on capability, capacity, and certification alignment. Localized activity lights up across every active region of the network.",
+    ops: ["Regional production activation", "Traveler data streaming live", "Configuration preserved at source"]
+  },
+  {
+    id: "S04", name: "Inter-node routing",
+    loc: "Distributed · dynamic routing",
+    kicker: "ROUTE",
+    text: "Workflows are dynamically routed between facilities to maintain throughput and continuity. Cross-links between regions adapt as load, capacity, and exceptions move through the system.",
+    ops: ["Adaptive cross-node routing", "Exceptions re-routed, not lost", "Throughput preserved under load"]
+  },
+  {
+    id: "S05", name: "Forge convergence",
+    loc: "Asgard Forge · integration + control",
+    kicker: "CONVERGE",
+    text: "Components converge at Forge nodes for controlled integration, certification, and IP-protected assembly. Configuration authority and secure cells sit at a small number of control points.",
+    ops: ["Subassembly integration", "CMM + metrology certification", "Secure cells for IP-sensitive work"]
+  },
+  {
+    id: "S06", name: "Final delivery",
+    loc: "Customer · certified throughput",
+    kicker: "DELIVER",
+    text: "Completed systems are validated, certified, and delivered back to the customer with full traceability. What entered as a requirement exits as certified, auditable, program-ready throughput.",
+    ops: ["Full audit trail", "Certification package included", "Throughput, not one-off delivery"]
+  }
+];
+
 function ProgramFlow() {
   const [step, setStep] = useState3(0);
-  const steps = [
-    {
-      id: "S01", name: "Program intake",
-      loc: "Customer · MOD / prime / agency",
-      color: "var(--signal)",
-      text: "A defense or aerospace program enters the network. Requirements, certifications, security classification, and delivery windows are registered against a routed execution plan.",
-      ops: ["Assembly parsed into components", "Spec + traveler generated", "Classification applied"]
-    },
-    {
-      id: "S02", name: "Routed to suppliers",
-      loc: "Launchbelt · digital layer",
-      color: "var(--accent)",
-      text: "The routing engine dispatches manufacturable work packages across qualified suppliers in the corridor, machining, fabrication, materials, and subsystem vendors receive work orders with embedded compliance context.",
-      ops: ["Capability-matched routing", "Embedded digital travelers", "Live visibility of execution state"]
-    },
-    {
-      id: "S03", name: "Supplier execution",
-      loc: "Distributed · qualified base",
-      color: "var(--accent)",
-      text: "Components are produced inside the supplier base. Configuration, traceability, and certification data stream back to the platform in real time, the work remains part of a coordinated flow, not a handoff.",
-      ops: ["As-built data captured at source", "Traceability preserved", "Exceptions routed, not lost"]
-    },
-    {
-      id: "S04", name: "Forge integration",
-      loc: "Asgard Forge · control point",
-      color: "var(--signal)",
-      text: "Components converge at a Forge. Subassemblies are integrated, inspected, certified, and, where required, processed inside secure cells. The Forge holds configuration authority and IP control for the program.",
-      ops: ["Subassembly integration", "CMM + metrology certification", "Secure cells for IP-sensitive work"]
-    },
-    {
-      id: "S05", name: "Program delivery",
-      loc: "Customer · certified throughput",
-      color: "var(--signal)",
-      text: "The integrated article ships with a complete, auditable provenance record. What enters the network as a requirement exits as certified, traceable, program-ready output, at the throughput defense demand requires.",
-      ops: ["Full audit trail", "Certification package included", "Throughput, not one-off delivery"]
-    }
-  ];
-  const s = steps[step];
+  const [playing, setPlaying] = useState3(false);
+  const sectionRef = React.useRef(null);
+
+  // Auto-advance when playing
+  React.useEffect(() => {
+    if (!playing) return;
+    const t = setTimeout(() => {
+      if (step < PF_STAGES.length - 1) setStep(s => s + 1);
+      else setPlaying(false);
+    }, 4200);
+    return () => clearTimeout(t);
+  }, [playing, step]);
+
+  // Scroll-driven: advance a stage each time user scrolls past a threshold
+  // inside the section (only after the first stage is visible).
+  React.useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    let active = false;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => { active = e.isIntersecting && e.intersectionRatio > 0.5; });
+    }, { threshold: [0, 0.5, 1] });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const s = PF_STAGES[step];
 
   return (
-    <section className="sec-pad" id="programflow" style={{background: "var(--bg-base)"}}>
+    <section className="sec-pad" id="programflow" style={{background: "var(--bg-base)"}} ref={sectionRef}>
       <div className="shell">
-        <SecHead tag="07 · How a Program Moves" meta="Intake → Route → Execute → Integrate → Deliver"
-          title="A program enters as a requirement. It exits as throughput."
-          lede="This is how a single aerospace or defense program moves through the Asgard network, from customer intake, through routed supplier execution, through the Forge as control point, to certified delivery. Each step is instrumented, traceable, and operationally gated."
+        <SecHead tag="07 · How It Works · Program Flow" meta="Intake → Launchbelt → Execute → Route → Converge → Deliver"
+          title="A live view of how a program moves through the continental network."
+          lede="This is how a single aerospace program or part request moves through Asgard, from intake, through decomposition and distributed execution, through dynamic inter-node routing, through convergence at a Forge, to certified delivery. The continent is the factory floor."
         />
 
-        <div className="pf-wrap">
-          <ol className="pf-track">
-            {steps.map((x, i) => (
+        <div className="pfm-wrap">
+          <div className="pfm-canvas">
+            <div className="grid-layer"/>
+            {/* Base geography + nodes, without the default auto-routing */}
+            <EuropeMap phase={5} mode="network" active={0} setActive={() => {}} flowMode={true} />
+            {/* Stage overlay, owns all program motion */}
+            <ProgramFlowOverlay step={step}/>
+
+            <div className="pfm-hud">
+              <div className="pfm-hud-row">
+                <span className="pfm-hud-tag">AAE · PROGRAM FLOW · LIVE</span>
+                <span className="pfm-hud-tag pfm-hud-stage">STAGE {String(step+1).padStart(2,"0")} / {String(PF_STAGES.length).padStart(2,"0")} · {s.kicker}</span>
+              </div>
+            </div>
+
+            <div className="pfm-caption">
+              <div className="pfm-caption-id">{s.id} · {s.loc}</div>
+              <h4>{s.name}</h4>
+              <p>{s.text}</p>
+            </div>
+
+            <div className="pfm-controls">
+              <button className="pfm-ctrl" onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>◀</button>
+              <button className={"pfm-ctrl play" + (playing ? " on" : "")} onClick={() => {
+                if (step === PF_STAGES.length - 1) { setStep(0); setPlaying(true); }
+                else setPlaying(p => !p);
+              }}>{playing ? "❙❙  Pause" : "▶  Play flow"}</button>
+              <button className="pfm-ctrl" onClick={() => setStep(Math.min(PF_STAGES.length - 1, step + 1))} disabled={step === PF_STAGES.length - 1}>▶</button>
+            </div>
+          </div>
+
+          <ol className="pfm-track">
+            {PF_STAGES.map((x, i) => (
               <li key={x.id}
-                className={"pf-step" + (i === step ? " on" : "") + (i < step ? " done" : "")}
-                onClick={() => setStep(i)}>
-                <div className="pf-step-id">{x.id}</div>
-                <div className="pf-step-name">{x.name}</div>
-                <div className="pf-step-loc">{x.loc}</div>
-                <div className="pf-step-bar"/>
+                className={"pfm-step" + (i === step ? " on" : "") + (i < step ? " done" : "")}
+                onClick={() => { setPlaying(false); setStep(i); }}>
+                <div className="pfm-step-id">{x.id} · {x.kicker}</div>
+                <div className="pfm-step-name">{x.name}</div>
+                <ul className="pfm-step-ops">
+                  {x.ops.map((op, j) => <li key={j}>{op}</li>)}
+                </ul>
+                <div className="pfm-step-bar"/>
               </li>
             ))}
           </ol>
+        </div>
 
-          <div className="pf-body">
-            <div>
-              <div className="coord" style={{color: s.color}}>{s.id} · {s.loc}</div>
-              <h3 style={{marginTop: 10}}>{s.name}</h3>
-              <p className="pf-text">{s.text}</p>
-
-              <div className="pf-ops">
-                {s.ops.map((op, i) => (
-                  <div key={i} className="pf-op">
-                    <span className="pf-op-num">{String(i+1).padStart(2,"0")}</span>
-                    <span>{op}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="pf-nav">
-                <button onClick={() => setStep(Math.max(0, step - 1))} disabled={step === 0}>← Prev stage</button>
-                <button className="pf-next" onClick={() => setStep(Math.min(4, step + 1))} disabled={step === 4}>
-                  {step === 4 ? "End of flow" : "Next stage →"}
-                </button>
-              </div>
+        <div className="pfm-principles">
+          {[
+            ["Distributed", "Production lives across the supplier base."],
+            ["Centralized", "Launchbelt holds routing + config authority."],
+            ["Dynamic",     "Workflows re-route between facilities live."],
+            ["Controlled",  "Integration converges at Forge nodes."],
+            ["Certified",   "Output leaves with full auditable provenance."],
+          ].map(([h, d], i) => (
+            <div key={i} className="pfm-principle">
+              <div className="pfm-principle-n">{String(i+1).padStart(2,"0")}</div>
+              <div className="pfm-principle-h">{h}</div>
+              <div className="pfm-principle-d">{d}</div>
             </div>
-
-            <div className="pf-diagram">
-              <ProgramFlowDiagram step={step} />
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
 
-function ProgramFlowDiagram({ step }) {
-  // Five lanes: Customer → Launchbelt → Suppliers → Forge → Customer
-  const lanes = [
-    { id: "CUST-IN", label: "PROGRAM", sub: "Customer intake",  x: 60,  y: 160, color: "oklch(84% 0.14 78)" },
-    { id: "LB",      label: "LAUNCHBELT", sub: "Routing layer",  x: 200, y: 80,  color: "oklch(82% 0.14 235)" },
-    { id: "SUP",     label: "SUPPLIERS",  sub: "Distributed execution", x: 380, y: 160, color: "oklch(82% 0.14 235)" },
-    { id: "FRG",     label: "FORGE",      sub: "Integration + control", x: 560, y: 160, color: "oklch(84% 0.14 78)" },
-    { id: "CUST-OUT",label: "DELIVERY",   sub: "Certified throughput",  x: 720, y: 160, color: "oklch(84% 0.14 78)" },
-  ];
-  // supplier cluster satellites
-  const sats = [
-    {x: 330, y: 80}, {x: 380, y: 60}, {x: 430, y: 80},
-    {x: 330, y: 240}, {x: 380, y: 260}, {x: 430, y: 240},
-  ];
+// Geographic overlay that sits on top of the Europe map and owns all
+// per-stage motion. Uses window.projectEurope to place elements on the
+// same projection as the base map.
+function ProgramFlowOverlay({ step }) {
+  const V = (typeof window !== "undefined" && window.EUROPE_VIEW) || { W: 1000, H: 900 };
+  const proj = (typeof window !== "undefined" && window.projectEurope) || (() => [0, 0]);
+  const nodes = (typeof window !== "undefined" && window.ASGARD_NODES) || [];
 
-  const activeEdges = {
-    0: [], // intake only
-    1: [["CUST-IN","LB"],["LB","SUP"]],
-    2: [["LB","SUP"]],  // execution at suppliers
-    3: [["SUP","FRG"]], // integration
-    4: [["FRG","CUST-OUT"]],
-  }[step] || [];
+  // Project every node once
+  const projected = React.useMemo(() => nodes.map(n => {
+    const p = proj(n.lon, n.lat);
+    return { ...n, x: p ? p[0] : 0, y: p ? p[1] : 0 };
+  }), [nodes]);
+
+  const anchor = projected.find(n => n.role === "candidate");
+  const forges = projected.filter(n => n.role === "forge");
+  const plannedNodes = projected.filter(n => n.role === "planned");
+  // "Production nodes" = all on-map nodes, since every node receives routed
+  // work in the distributed model.
+  const prodNodes = projected;
+
+  // Off-map abstract points — intake top-left, Launchbelt band top-center,
+  // delivery top-right. These sit above the geographic canvas.
+  const intake     = { x: V.W * 0.07, y: V.H * 0.08 };
+  const launchbelt = { x: V.W * 0.50, y: V.H * 0.06 };
+  const delivery   = { x: V.W * 0.93, y: V.H * 0.08 };
+
+  // Deterministic supplier satellites around each node (tight cluster)
+  const satellitesFor = (n, count = 5, radiusBase = 26) => {
+    const seed = n.id.charCodeAt(n.id.length - 1) + n.id.charCodeAt(0);
+    return Array.from({ length: count }, (_, k) => {
+      const a = ((seed * 41 + k * 83) % 360) * Math.PI / 180;
+      const r = radiusBase + ((seed * 17 + k * 31) % 18);
+      return { x: n.x + Math.cos(a) * r, y: n.y + Math.sin(a) * r * 0.78, k };
+    });
+  };
+
+  // Curve helper for a graceful arc between two points
+  const arc = (A, B, curve = 0.18) => {
+    const mx = (A.x + B.x) / 2;
+    const my = (A.y + B.y) / 2;
+    const dx = B.x - A.x, dy = B.y - A.y;
+    // perpendicular offset
+    const ox = -dy * curve;
+    const oy = dx * curve;
+    return `M ${A.x} ${A.y} Q ${mx + ox} ${my + oy} ${B.x} ${B.y}`;
+  };
+
+  // Stage-specific activity
+  const showIntake     = step >= 0;
+  const intakePulse    = step === 0;
+  const showLB         = step >= 1;
+  const lbActive       = step === 1 || step === 2;
+  const showDispatch   = step === 1;               // LB → nodes
+  const showSatellites = step >= 2 && step <= 4;
+  const showRegionPulse= step === 2;               // node pulses + sat→node flow
+  const showCross      = step === 3;               // node↔node routing
+  const showConverge   = step === 4;               // nodes → forges
+  const showDelivery   = step === 5;               // forge → delivery
+
+  // A small curated set of cross-links for stage 3 (node ↔ node).
+  const findNode = (id) => projected.find(n => n.id === id);
+  const crossLinks = [
+    ["AAE-N01", "AAE-N02"],
+    ["AAE-N02", "AAE-N03"],
+    ["AAE-N03", "AAE-N04"],
+    ["AAE-N03", "AAE-N06"],
+    ["AAE-N04", "AAE-N05"],
+    ["AAE-N05", "AAE-N07"],
+    ["AAE-N07", "AAE-N08"],
+    ["AAE-N01", "AAE-N09"],
+  ].map(([a, b]) => [findNode(a), findNode(b)]).filter(([a, b]) => a && b);
+
+  // Satellite pool for production / convergence stages
+  const allSats = React.useMemo(() => {
+    return prodNodes.flatMap(n => satellitesFor(n, n.role === "planned" ? 4 : 6).map(s => ({ ...s, host: n })));
+  }, [projected]);
 
   return (
-    <svg viewBox="0 0 800 320" style={{width: "100%", height: "100%"}}>
+    <svg className="pfm-overlay" viewBox={`0 0 ${V.W} ${V.H}`} preserveAspectRatio="xMidYMid meet">
       <defs>
-        <filter id="pfglow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2.5" result="b"/>
+        <filter id="pfm-glow" x="-80%" y="-80%" width="260%" height="260%">
+          <feGaussianBlur stdDeviation="3" result="b"/>
           <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
+        <filter id="pfm-glow-soft" x="-200%" y="-200%" width="500%" height="500%">
+          <feGaussianBlur stdDeviation="6" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <linearGradient id="pfm-lb-grad" x1="0" x2="1" y1="0" y2="0">
+          <stop offset="0%"  stopColor="oklch(72% 0.14 235)" stopOpacity="0"/>
+          <stop offset="15%" stopColor="oklch(76% 0.14 235)" stopOpacity="0.65"/>
+          <stop offset="50%" stopColor="oklch(86% 0.12 235)" stopOpacity="0.95"/>
+          <stop offset="85%" stopColor="oklch(76% 0.14 235)" stopOpacity="0.65"/>
+          <stop offset="100%" stopColor="oklch(72% 0.14 235)" stopOpacity="0"/>
+        </linearGradient>
       </defs>
 
-      {/* baseline */}
-      <line x1="0" y1="160" x2="800" y2="160" stroke="var(--line)" strokeWidth="0.6" strokeDasharray="2 6"/>
+      {/* ============================================================
+          LAUNCHBELT BAND — abstract orchestration strip at top of map
+          Appears once program has entered the system.
+          ============================================================ */}
+      {showLB && (
+        <g className="pfm-lb" opacity={lbActive ? 1 : 0.6}>
+          <line x1={V.W * 0.12} y1={launchbelt.y}
+                x2={V.W * 0.88} y2={launchbelt.y}
+                stroke="url(#pfm-lb-grad)" strokeWidth="1.2"/>
+          {/* Tick marks along band */}
+          {Array.from({ length: 18 }).map((_, i) => {
+            const x = V.W * 0.14 + i * (V.W * 0.72 / 17);
+            return (
+              <line key={i} x1={x} y1={launchbelt.y - 3} x2={x} y2={launchbelt.y + 3}
+                    stroke="oklch(72% 0.14 235)" strokeWidth="0.5" opacity={0.55}/>
+            );
+          })}
+          {/* Label */}
+          <g transform={`translate(${launchbelt.x}, ${launchbelt.y - 22})`}>
+            <text textAnchor="middle" fontFamily="var(--f-mono)" fontSize="11"
+                  fill="oklch(86% 0.12 235)" letterSpacing="3" fontWeight="500">
+              LAUNCHBELT · ORCHESTRATION LAYER
+            </text>
+          </g>
+          {/* Core marker */}
+          <circle cx={launchbelt.x} cy={launchbelt.y} r={lbActive ? 7 : 5}
+                  fill="oklch(90% 0.12 235)" filter="url(#pfm-glow)"/>
+          {lbActive && (
+            <circle cx={launchbelt.x} cy={launchbelt.y} r="14" fill="none"
+                    stroke="oklch(82% 0.14 235)" strokeWidth="0.8" opacity="0.6">
+              <animate attributeName="r" values="10;26;10" dur="2.4s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.7;0;0.7" dur="2.4s" repeatCount="indefinite"/>
+            </circle>
+          )}
+        </g>
+      )}
 
-      {/* all lane connections (faint) */}
-      {[["CUST-IN","LB"],["LB","SUP"],["SUP","FRG"],["FRG","CUST-OUT"]].map(([a,b],i) => {
-        const A = lanes.find(l=>l.id===a), B = lanes.find(l=>l.id===b);
-        const isActive = activeEdges.some(([aa,bb]) => aa===a && bb===b);
-        const d = `M ${A.x} ${A.y} Q ${(A.x+B.x)/2} ${(A.y+B.y)/2 - 30} ${B.x} ${B.y}`;
-        return (
-          <g key={i}>
-            <path d={d} fill="none" stroke={isActive ? "oklch(86% 0.12 235)" : "var(--line-strong)"}
-              strokeWidth={isActive ? 1.6 : 0.7} opacity={isActive ? 0.95 : 0.35}/>
-            {isActive && (
-              <circle r="3.5" fill="oklch(90% 0.14 235)" filter="url(#pfglow)">
-                <animateMotion dur="1.8s" repeatCount="indefinite" path={d}/>
+      {/* ============================================================
+          STAGE 1 — INTAKE
+          A single request enters the system from off-map (top-left)
+          and connects into the Launchbelt.
+          ============================================================ */}
+      {showIntake && (
+        <g className="pfm-intake">
+          {/* Label + marker */}
+          <g transform={`translate(${intake.x}, ${intake.y})`}>
+            <circle r="9" fill="none" stroke="oklch(84% 0.14 78)" strokeWidth="0.9" opacity="0.9"/>
+            <circle r={intakePulse ? 4.5 : 3.5} fill="oklch(88% 0.14 78)" filter="url(#pfm-glow)"/>
+            {intakePulse && (
+              <circle r="12" fill="none" stroke="oklch(84% 0.14 78)" strokeWidth="0.8" opacity="0.6">
+                <animate attributeName="r" values="8;22;8" dur="2.2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.8;0;0.8" dur="2.2s" repeatCount="indefinite"/>
               </circle>
             )}
+            <text x="0" y="-18" textAnchor="middle" fontFamily="var(--f-mono)" fontSize="11"
+                  fill="oklch(90% 0.10 80)" letterSpacing="2" fontWeight="500">
+              PROGRAM REQUEST
+            </text>
+            <text x="0" y="28" textAnchor="middle" fontFamily="var(--f-mono)" fontSize="9"
+                  fill="var(--text-faint)" letterSpacing="1.6">
+              CUSTOMER · INTAKE
+            </text>
           </g>
-        );
-      })}
+          {/* Line from intake → Launchbelt, appears once LB is present */}
+          {showLB && (() => {
+            const d = arc(intake, launchbelt, 0.08);
+            return (
+              <g>
+                <path d={d} fill="none" stroke="oklch(84% 0.14 78)" strokeWidth="1.1"
+                      opacity="0.65" strokeDasharray={intakePulse ? "none" : "3 4"}/>
+                {intakePulse && (
+                  <>
+                    <circle r="4" fill="oklch(92% 0.14 80)" filter="url(#pfm-glow)">
+                      <animateMotion dur="2.2s" repeatCount="indefinite" path={d}/>
+                    </circle>
+                    <circle r="2.5" fill="oklch(94% 0.14 80)">
+                      <animateMotion dur="2.2s" begin="0.7s" repeatCount="indefinite" path={d}/>
+                    </circle>
+                  </>
+                )}
+              </g>
+            );
+          })()}
+        </g>
+      )}
 
-      {/* supplier satellites, active during S02/S03 */}
-      {(step === 1 || step === 2) && sats.map((s, i) => {
-        const SUP = lanes.find(l=>l.id==="SUP");
-        const d = `M ${SUP.x} ${SUP.y} Q ${(SUP.x+s.x)/2} ${(SUP.y+s.y)/2} ${s.x} ${s.y}`;
+      {/* ============================================================
+          STAGE 2 — DECOMPOSITION (dispatch from Launchbelt)
+          Launchbelt fans out routing rays to every active node.
+          ============================================================ */}
+      {showDispatch && prodNodes.map((n, i) => {
+        const d = arc(launchbelt, n, 0.12);
         return (
-          <g key={"sat"+i}>
-            <path d={d} fill="none" stroke="oklch(82% 0.14 235)" strokeWidth="0.6" opacity="0.6"/>
-            <circle cx={s.x} cy={s.y} r="3" fill="oklch(82% 0.14 235)"/>
-            <circle r="1.8" fill="oklch(90% 0.14 235)">
-              <animateMotion dur={`${1.2 + i*0.15}s`} repeatCount="indefinite" path={d}/>
+          <g key={"disp" + n.id}>
+            <path d={d} fill="none" stroke="oklch(82% 0.14 235)" strokeWidth="0.8"
+                  opacity="0.55"/>
+            <circle r="2.6" fill="oklch(92% 0.12 235)" filter="url(#pfm-glow)">
+              <animateMotion dur={`${1.8 + (i % 4) * 0.2}s`} begin={`${(i * 0.12) % 1.4}s`}
+                             repeatCount="indefinite" path={d}/>
             </circle>
           </g>
         );
       })}
 
-      {/* lane nodes */}
-      {lanes.map((l, i) => {
-        const isActiveLane = (
-          (step === 0 && l.id === "CUST-IN") ||
-          (step === 1 && (l.id === "LB" || l.id === "SUP")) ||
-          (step === 2 && l.id === "SUP") ||
-          (step === 3 && l.id === "FRG") ||
-          (step === 4 && (l.id === "FRG" || l.id === "CUST-OUT"))
-        );
+      {/* ============================================================
+          STAGES 3-5 — SUPPLIER SATELLITES around each node
+          Small gold dots representing the qualified supplier base
+          feeding each active node.
+          ============================================================ */}
+      {showSatellites && allSats.map((s, i) => {
+        const d = `M ${s.x} ${s.y} L ${s.host.x} ${s.host.y}`;
+        const isRegion  = showRegionPulse;
+        const isConverge = showConverge;
+        // In convergence, only show satellites feeding Forges
+        if (isConverge && s.host.role !== "forge") return null;
         return (
-          <g key={l.id}>
-            {/* halo */}
-            {isActiveLane && (
-              <circle cx={l.x} cy={l.y} r="22" fill="none" stroke={l.color} strokeWidth="0.8" opacity="0.5">
-                <animate attributeName="r" values="14;30;14" dur="2.4s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.7;0;0.7" dur="2.4s" repeatCount="indefinite"/>
+          <g key={"sat" + i}>
+            <path d={d} stroke="oklch(82% 0.12 78)" strokeWidth="0.4" fill="none"
+                  opacity={isRegion ? 0.55 : 0.3}/>
+            <circle cx={s.x} cy={s.y} r="1.3" fill="oklch(92% 0.13 82)"
+                    filter="url(#pfm-glow)" opacity="0.9"/>
+            {(isRegion || isConverge) && (
+              <circle r="1.6" fill="oklch(94% 0.14 82)" filter="url(#pfm-glow)">
+                <animateMotion dur={`${1.6 + (i % 5) * 0.25}s`}
+                               begin={`${(i * 0.13) % 1.8}s`}
+                               repeatCount="indefinite" path={d}/>
               </circle>
             )}
-            <circle cx={l.x} cy={l.y} r="18" fill="none" stroke={isActiveLane ? l.color : "var(--line-strong)"} strokeWidth="0.8" opacity={isActiveLane ? 0.9 : 0.4}/>
-            <circle cx={l.x} cy={l.y} r={isActiveLane ? 7 : 5} fill={isActiveLane ? l.color : "var(--text-dim)"} filter={isActiveLane ? "url(#pfglow)" : undefined}/>
-            <text x={l.x} y={l.y - 30} textAnchor="middle" fontFamily="var(--f-mono)" fontSize="10" fill={isActiveLane ? l.color : "var(--text-dim)"} letterSpacing="1.8" fontWeight="500">{l.label}</text>
-            <text x={l.x} y={l.y + 40} textAnchor="middle" fontFamily="var(--f-mono)" fontSize="9" fill="var(--text-faint)" letterSpacing="1">{l.sub}</text>
           </g>
         );
       })}
 
-      {/* corner markers */}
-      <g fontFamily="var(--f-mono)" fontSize="9" fill="var(--text-faint)" letterSpacing="1.2">
-        <text x="16" y="20">PROGRAM FLOW · STAGE {step + 1} / 5</text>
-        <text x="640" y="20">INSTRUMENTED · TRACEABLE</text>
-      </g>
+      {/* ============================================================
+          STAGE 3 — DISTRIBUTED PRODUCTION
+          Every on-map node pulses with localized activity.
+          ============================================================ */}
+      {showRegionPulse && prodNodes.map((n, i) => (
+        <g key={"reg" + n.id}>
+          <circle cx={n.x} cy={n.y} r="24" fill="none"
+                  stroke="oklch(82% 0.14 235)" strokeWidth="0.7" opacity="0.7">
+            <animate attributeName="r" values="16;36;16"
+                     dur={`${2.6 + (i % 4) * 0.3}s`} repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.8;0;0.8"
+                     dur={`${2.6 + (i % 4) * 0.3}s`} repeatCount="indefinite"/>
+          </circle>
+          <circle cx={n.x} cy={n.y} r="3" fill="oklch(92% 0.12 235)"
+                  filter="url(#pfm-glow-soft)"/>
+        </g>
+      ))}
+
+      {/* ============================================================
+          STAGE 4 — INTER-NODE ROUTING
+          Cross-links between regions activate with bidirectional flow.
+          ============================================================ */}
+      {showCross && crossLinks.map(([A, B], i) => {
+        const d1 = arc(A, B, 0.14);
+        const d2 = arc(B, A, 0.14);
+        return (
+          <g key={"cross" + i}>
+            <path d={d1} fill="none" stroke="oklch(82% 0.14 235)" strokeWidth="0.85"
+                  opacity="0.7"/>
+            <circle r="2.4" fill="oklch(92% 0.12 235)" filter="url(#pfm-glow)">
+              <animateMotion dur={`${2.0 + (i % 3) * 0.3}s`}
+                             begin={`${(i * 0.2) % 1.4}s`}
+                             repeatCount="indefinite" path={d1}/>
+            </circle>
+            <circle r="1.8" fill="oklch(88% 0.10 235)">
+              <animateMotion dur={`${2.3 + (i % 3) * 0.3}s`}
+                             begin={`${(i * 0.25) % 1.6}s`}
+                             repeatCount="indefinite" path={d2}/>
+            </circle>
+          </g>
+        );
+      })}
+
+      {/* ============================================================
+          STAGE 5 — FORGE CONVERGENCE
+          Streams from every non-Forge node converge into the Forges.
+          Forges glow intensely.
+          ============================================================ */}
+      {showConverge && (
+        <>
+          {/* streams from planned + anchor → nearest Forge */}
+          {projected.filter(n => n.role !== "forge").map((src, i) => {
+            // nearest forge
+            const target = forges.reduce((best, f) => {
+              const d = Math.hypot(f.x - src.x, f.y - src.y);
+              return (!best || d < best.d) ? { f, d } : best;
+            }, null);
+            if (!target) return null;
+            const d = arc(src, target.f, 0.12);
+            return (
+              <g key={"conv" + src.id}>
+                <path d={d} fill="none" stroke="oklch(84% 0.14 78)" strokeWidth="0.9"
+                      opacity="0.65"/>
+                <circle r="2.8" fill="oklch(92% 0.14 80)" filter="url(#pfm-glow)">
+                  <animateMotion dur={`${2.0 + (i % 4) * 0.25}s`}
+                                 begin={`${(i * 0.18) % 1.6}s`}
+                                 repeatCount="indefinite" path={d}/>
+                </circle>
+              </g>
+            );
+          })}
+          {/* Forge intensity rings */}
+          {forges.map((f, i) => (
+            <g key={"frg" + f.id}>
+              <circle cx={f.x} cy={f.y} r="28" fill="none"
+                      stroke="oklch(84% 0.14 78)" strokeWidth="1" opacity="0.85">
+                <animate attributeName="r" values="18;42;18"
+                         dur={`${2.4 + (i % 3) * 0.3}s`} repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.9;0;0.9"
+                         dur={`${2.4 + (i % 3) * 0.3}s`} repeatCount="indefinite"/>
+              </circle>
+              <circle cx={f.x} cy={f.y} r="6" fill="oklch(90% 0.14 78)"
+                      filter="url(#pfm-glow-soft)"/>
+              <text x={f.x} y={f.y - 34} textAnchor="middle" fontFamily="var(--f-mono)"
+                    fontSize="10" fill="oklch(90% 0.14 78)" letterSpacing="2" fontWeight="500">
+                FORGE
+              </text>
+            </g>
+          ))}
+        </>
+      )}
+
+      {/* ============================================================
+          STAGE 6 — FINAL DELIVERY
+          Collapsed outbound path from the primary Forge to the customer.
+          All other activity stabilizes.
+          ============================================================ */}
+      {showDelivery && (() => {
+        // pick the Forge geographically nearest to the delivery point
+        const sorted = [...forges].sort((a, b) =>
+          Math.hypot(a.x - delivery.x, a.y - delivery.y) -
+          Math.hypot(b.x - delivery.x, b.y - delivery.y));
+        const frg = sorted[0];
+        if (!frg) return null;
+        const d = arc(frg, delivery, 0.08);
+        return (
+          <g>
+            {/* Forge still glowing */}
+            <circle cx={frg.x} cy={frg.y} r="9" fill="oklch(90% 0.14 78)"
+                    filter="url(#pfm-glow-soft)"/>
+            <circle cx={frg.x} cy={frg.y} r="22" fill="none"
+                    stroke="oklch(84% 0.14 78)" strokeWidth="0.9" opacity="0.9">
+              <animate attributeName="r" values="16;34;16" dur="3s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.9;0;0.9" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            {/* Outbound line */}
+            <path d={d} fill="none" stroke="oklch(86% 0.14 80)" strokeWidth="1.4" opacity="0.95"/>
+            <circle r="5" fill="oklch(94% 0.14 80)" filter="url(#pfm-glow)">
+              <animateMotion dur="2.6s" repeatCount="indefinite" path={d}/>
+            </circle>
+            <circle r="3" fill="oklch(94% 0.14 80)">
+              <animateMotion dur="2.6s" begin="0.9s" repeatCount="indefinite" path={d}/>
+            </circle>
+            {/* Delivery marker */}
+            <g transform={`translate(${delivery.x}, ${delivery.y})`}>
+              <rect x="-10" y="-10" width="20" height="20" fill="none"
+                    stroke="oklch(84% 0.14 78)" strokeWidth="1" opacity="0.9"/>
+              <circle r="5" fill="oklch(92% 0.14 80)" filter="url(#pfm-glow)"/>
+              <circle r="14" fill="none" stroke="oklch(84% 0.14 78)" strokeWidth="0.8" opacity="0.7">
+                <animate attributeName="r" values="10;22;10" dur="2.4s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.8;0;0.8" dur="2.4s" repeatCount="indefinite"/>
+              </circle>
+              <text x="0" y="-18" textAnchor="middle" fontFamily="var(--f-mono)" fontSize="11"
+                    fill="oklch(90% 0.10 80)" letterSpacing="2" fontWeight="500">
+                DELIVERY
+              </text>
+              <text x="0" y="30" textAnchor="middle" fontFamily="var(--f-mono)" fontSize="9"
+                    fill="var(--text-faint)" letterSpacing="1.6">
+                CUSTOMER · CERTIFIED
+              </text>
+            </g>
+          </g>
+        );
+      })()}
     </svg>
   );
 }

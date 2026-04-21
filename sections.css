@@ -324,87 +324,201 @@
 @media (max-width: 1100px) { .net-wrap { grid-template-columns: 1fr; } .net-panel { border-left: 0; border-top: 1px solid var(--line); } }
 @media (max-width: 700px) { .phase-strip { grid-template-columns: 1fr 1fr; } .phase-strip button { border-right: 0; border-bottom: 1px solid var(--line); } }
 
-/* ---- Program Flow ---- */
-.pf-wrap { margin-top: 40px; border: 1px solid var(--line); background: var(--bg-panel); }
-.pf-track {
-  list-style: none; margin: 0; padding: 0;
-  display: grid; grid-template-columns: repeat(5, 1fr);
+/* ---- Program Flow · map-layered 6-stage experience ---- */
+.pfm-wrap {
+  margin-top: 40px;
+  border: 1px solid var(--line);
+  background: var(--bg-base);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.pfm-canvas {
+  position: relative;
+  aspect-ratio: 1.45;
+  background: var(--bg-void);
+  overflow: hidden;
   border-bottom: 1px solid var(--line);
 }
-.pf-step {
+.pfm-canvas .grid-layer {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in oklch, var(--line) 50%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--line) 50%, transparent) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 90%);
+}
+.pfm-canvas .net-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  z-index: 1;
+}
+.pfm-overlay {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* HUD corners */
+.pfm-hud {
+  position: absolute; top: 0; left: 0; right: 0;
+  padding: 16px 20px;
+  display: flex; justify-content: space-between;
+  z-index: 3; pointer-events: none;
+}
+.pfm-hud-row { display: flex; justify-content: space-between; width: 100%; gap: 12px; }
+.pfm-hud-tag {
+  font-family: var(--f-mono); font-size: 10px;
+  color: var(--text-dim); letter-spacing: 0.18em; text-transform: uppercase;
+  padding: 6px 10px; border: 1px solid var(--line-faint);
+  background: color-mix(in oklch, var(--bg-void) 70%, transparent);
+  backdrop-filter: blur(4px);
+}
+.pfm-hud-stage { color: var(--accent); border-color: color-mix(in oklch, var(--accent) 40%, var(--line)); }
+
+/* Stage caption overlay — bottom-left */
+.pfm-caption {
+  position: absolute; bottom: 20px; left: 20px;
+  max-width: 440px;
+  padding: 20px 22px;
+  background: color-mix(in oklch, var(--bg-void) 78%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  z-index: 3;
+  animation: pfmFade 0.6s cubic-bezier(.2,.7,.2,1);
+}
+.pfm-caption-id {
+  font-family: var(--f-mono); font-size: 10.5px;
+  color: var(--accent); letter-spacing: 0.16em; text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.pfm-caption h4 {
+  font-family: var(--f-display); font-weight: 500; font-size: 22px;
+  color: var(--text-hi); letter-spacing: -0.015em; line-height: 1.15;
+  margin-bottom: 10px;
+}
+.pfm-caption p {
+  font-size: 13.5px; color: var(--text); line-height: 1.55;
+  max-width: 56ch;
+}
+@keyframes pfmFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Playback controls — bottom-right */
+.pfm-controls {
+  position: absolute; bottom: 20px; right: 20px;
+  display: flex; gap: 6px; z-index: 3;
+}
+.pfm-ctrl {
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em;
+  color: var(--text-hi);
+  background: color-mix(in oklch, var(--bg-void) 70%, transparent);
+  backdrop-filter: blur(6px);
+  border: 1px solid var(--line-strong);
+  padding: 10px 14px; cursor: pointer; text-transform: uppercase;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  min-width: 44px;
+}
+.pfm-ctrl.play { padding: 10px 18px; letter-spacing: 0.18em; }
+.pfm-ctrl:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+.pfm-ctrl:disabled { opacity: 0.3; cursor: not-allowed; }
+.pfm-ctrl.on { background: var(--accent); color: var(--bg-void); border-color: var(--accent); }
+
+/* Stage track — below the canvas */
+.pfm-track {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(6, 1fr);
+  background: var(--bg-panel);
+}
+.pfm-step {
   position: relative;
-  padding: 22px 20px 18px;
+  padding: 20px 18px 18px;
   border-right: 1px solid var(--line);
   cursor: pointer;
   transition: background 0.2s;
-  display: flex; flex-direction: column; gap: 4px;
+  display: flex; flex-direction: column; gap: 8px;
 }
-.pf-step:last-child { border-right: 0; }
-.pf-step:hover { background: var(--bg-hover); }
-.pf-step.on { background: var(--bg-base); }
-.pf-step-id {
+.pfm-step:last-child { border-right: 0; }
+.pfm-step:hover { background: var(--bg-hover); }
+.pfm-step.on { background: var(--bg-base); }
+.pfm-step-id {
   font-family: var(--f-mono); font-size: 10px; color: var(--text-faint);
-  letter-spacing: 0.16em;
+  letter-spacing: 0.16em; text-transform: uppercase;
 }
-.pf-step-name {
-  font-family: var(--f-display); font-weight: 500; font-size: 16px;
+.pfm-step-name {
+  font-family: var(--f-display); font-weight: 500; font-size: 15px;
   color: var(--text-hi); letter-spacing: -0.01em; line-height: 1.2;
 }
-.pf-step-loc { font-family: var(--f-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 0.1em; text-transform: uppercase; }
-.pf-step-bar {
-  position: absolute; left: 0; right: 0; bottom: -1px;
-  height: 2px;
-  background: transparent;
+.pfm-step-ops {
+  list-style: none; margin: 4px 0 0; padding: 0;
+  display: flex; flex-direction: column; gap: 4px;
 }
-.pf-step.on .pf-step-bar { background: var(--accent); }
-.pf-step.done .pf-step-bar { background: color-mix(in oklch, var(--accent), transparent 55%); }
-.pf-step.on .pf-step-name { color: var(--accent); }
+.pfm-step-ops li {
+  font-family: var(--f-mono); font-size: 10.5px;
+  color: var(--text-dim); letter-spacing: 0.02em; line-height: 1.4;
+  padding-left: 10px; position: relative;
+}
+.pfm-step-ops li::before {
+  content: ""; position: absolute; left: 0; top: 7px;
+  width: 4px; height: 1px; background: var(--line-strong);
+}
+.pfm-step-bar {
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 2px; background: transparent;
+}
+.pfm-step.on .pfm-step-bar { background: var(--accent); box-shadow: 0 0 10px var(--accent); }
+.pfm-step.done .pfm-step-bar { background: color-mix(in oklch, var(--accent), transparent 55%); }
+.pfm-step.on .pfm-step-name { color: var(--accent); }
+.pfm-step.on .pfm-step-ops li { color: var(--text); }
+.pfm-step.on .pfm-step-ops li::before { background: var(--accent); }
 
-.pf-body {
-  display: grid; grid-template-columns: 1fr 1.2fr;
-  gap: 0;
+/* Principles strip */
+.pfm-principles {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  border: 1px solid var(--line); border-top: 0;
+  background: var(--bg-base);
 }
-.pf-body > div:first-child { padding: 40px 36px 36px; border-right: 1px solid var(--line); }
-.pf-text { font-size: 15px; line-height: 1.65; color: var(--text); margin-top: 14px; max-width: 56ch; }
-.pf-ops {
-  margin-top: 28px; padding-top: 20px;
-  border-top: 1px dashed var(--line);
-  display: flex; flex-direction: column; gap: 10px;
+.pfm-principle {
+  padding: 24px 22px;
+  border-right: 1px solid var(--line);
+  display: flex; flex-direction: column; gap: 6px;
 }
-.pf-op {
-  display: flex; gap: 14px; align-items: flex-start;
-  font-size: 13px; color: var(--text-hi);
+.pfm-principle:last-child { border-right: 0; }
+.pfm-principle-n {
+  font-family: var(--f-mono); font-size: 10px;
+  color: var(--text-faint); letter-spacing: 0.14em;
 }
-.pf-op-num {
-  font-family: var(--f-mono); font-size: 10px; color: var(--accent);
-  letter-spacing: 0.14em; padding-top: 2px;
+.pfm-principle-h {
+  font-family: var(--f-display); font-size: 17px; font-weight: 500;
+  color: var(--text-hi); letter-spacing: -0.005em;
+  margin-top: 4px;
 }
-.pf-nav {
-  margin-top: 28px; display: flex; gap: 8px;
-}
-.pf-nav button {
-  flex: 1; padding: 12px 14px;
-  background: transparent; color: var(--text-dim);
-  border: 1px solid var(--line);
-  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
-  cursor: pointer; transition: background 0.2s, color 0.2s;
-}
-.pf-nav button:not(:disabled):hover { background: var(--bg-hover); color: var(--text-hi); }
-.pf-nav button:disabled { opacity: 0.35; cursor: not-allowed; }
-.pf-nav .pf-next { background: var(--text-hi); color: var(--bg-void); border-color: var(--text-hi); }
-.pf-nav .pf-next:not(:disabled):hover { background: var(--accent); border-color: var(--accent); color: var(--bg-void); }
-
-.pf-diagram {
-  background: var(--bg-void);
-  padding: 20px 24px;
-  display: flex; align-items: center; justify-content: center;
-  min-height: 360px;
+.pfm-principle-d {
+  font-size: 13px; color: var(--text-dim); line-height: 1.45;
 }
 
-@media (max-width: 1000px) {
-  .pf-track { grid-template-columns: repeat(5, minmax(140px, 1fr)); overflow-x: auto; }
-  .pf-body { grid-template-columns: 1fr; }
-  .pf-body > div:first-child { border-right: 0; border-bottom: 1px solid var(--line); }
+@media (max-width: 1100px) {
+  .pfm-canvas { aspect-ratio: 1.2; }
+  .pfm-track { grid-template-columns: repeat(3, 1fr); }
+  .pfm-step:nth-child(3n) { border-right: 0; }
+  .pfm-step:nth-child(-n+3) { border-bottom: 1px solid var(--line); }
+  .pfm-principles { grid-template-columns: 1fr 1fr; }
+  .pfm-principle:nth-child(2n) { border-right: 0; }
+  .pfm-principle:nth-child(-n+4) { border-bottom: 1px solid var(--line); }
+}
+@media (max-width: 720px) {
+  .pfm-canvas { aspect-ratio: 0.95; }
+  .pfm-caption { max-width: none; left: 12px; right: 12px; padding: 14px 16px; }
+  .pfm-caption h4 { font-size: 18px; }
+  .pfm-caption p { font-size: 12.5px; }
+  .pfm-controls { bottom: auto; top: 12px; right: 12px; }
+  .pfm-track { grid-template-columns: 1fr 1fr; }
+  .pfm-step:nth-child(2n) { border-right: 0; }
+  .pfm-step { border-bottom: 1px solid var(--line); }
+  .pfm-principles { grid-template-columns: 1fr; }
+  .pfm-principle { border-right: 0; border-bottom: 1px solid var(--line); }
 }
 
 /* ---- Regions tiles ---- */
