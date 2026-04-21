@@ -444,8 +444,18 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
       {/* NODES */}
       {nodesProj.map((n, i) => {
         if (!visibleSet.has(i)) return null;
-        const isActive  = active === i;
-        const isPlanned = n.role === "planned";
+        const isActive     = active === i;
+        const isPlanned    = n.role === "planned";
+        const isCurrentPhase = n.phase === phase;
+        // Labels accumulate across phases by default. Instead, only show a label
+        // for the node(s) the current gate activates, plus whichever node the user
+        // has explicitly selected. At phase 5 multiple nodes match; we render a
+        // single grouped annotation below instead of per-node callouts.
+        const phase5Group  = phase === 5 && isCurrentPhase;
+        const showLabel    = !poster && (isActive || (isCurrentPhase && phase !== 5));
+        // Quiet emphasis on non-active-phase nodes; lift the current phase.
+        const emphasize    = isCurrentPhase || isActive;
+        const quietOpacity = emphasize ? 1 : 0.55;
 
         // Poster mode: flat hierarchy. Everyone is a primary cyan node.
         if (poster) {
@@ -467,57 +477,93 @@ function EuropeMap({ phase, mode, active, setActive, poster = false }) {
         }
 
         const color     = "oklch(82% 0.14 230)";
-        const dotR      = isPlanned ? 4 : 5.5;
-        const ringR     = isActive ? 22 : 16;
+        const dotR      = (isPlanned ? 4 : 5.5) * (emphasize ? 1 : 0.9);
+        const ringR     = isActive ? 22 : (isCurrentPhase ? 19 : 16);
+        const plannedRingOpacity = isPlanned ? (emphasize ? 0.7 : 0.3) : (emphasize ? 0.9 : 0.45);
 
         return (
-          <g key={n.id} style={{ cursor: "pointer" }} onClick={() => setActive(i)}>
+          <g key={n.id} style={{ cursor: "pointer", transition: "opacity 400ms ease" }}
+             opacity={quietOpacity}
+             onClick={() => setActive(i)}>
             {/* outer target ring */}
             <circle cx={n.x} cy={n.y} r={ringR}
               fill="none" stroke={color}
-              strokeWidth={isActive ? 1.4 : 0.9}
-              opacity={isPlanned ? 0.45 : 0.8}/>
+              strokeWidth={isActive ? 1.4 : isCurrentPhase ? 1.2 : 0.9}
+              opacity={plannedRingOpacity}/>
 
             {/* crosshair ticks */}
-            <g stroke={color} strokeWidth="0.7" opacity={isPlanned ? 0.4 : 0.7}>
+            <g stroke={color} strokeWidth="0.7" opacity={isPlanned ? (emphasize ? 0.6 : 0.25) : (emphasize ? 0.8 : 0.45)}>
               <line x1={n.x - ringR - 4} y1={n.y} x2={n.x - ringR + 2} y2={n.y}/>
               <line x1={n.x + ringR - 2} y1={n.y} x2={n.x + ringR + 4} y2={n.y}/>
               <line x1={n.x} y1={n.y - ringR - 4} x2={n.x} y2={n.y - ringR + 2}/>
               <line x1={n.x} y1={n.y + ringR - 2} x2={n.x} y2={n.y + ringR + 4}/>
             </g>
 
-            {/* pulse, operational only */}
-            {!isPlanned && (
+            {/* pulse, active-phase emphasis only */}
+            {emphasize && (
               <circle cx={n.x} cy={n.y} r="10" fill="none"
-                stroke={color} strokeWidth="0.8" opacity="0.55">
-                <animate attributeName="r" values={`${ringR - 2};${ringR + 12};${ringR - 2}`}
-                  dur="3.2s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.7;0;0.7"
-                  dur="3.2s" repeatCount="indefinite"/>
+                stroke={color} strokeWidth={isCurrentPhase ? 1 : 0.8}
+                opacity={isCurrentPhase ? 0.7 : 0.55}>
+                <animate attributeName="r" values={`${ringR - 2};${ringR + 14};${ringR - 2}`}
+                  dur={isCurrentPhase ? "2.6s" : "3.2s"} repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.8;0;0.8"
+                  dur={isCurrentPhase ? "2.6s" : "3.2s"} repeatCount="indefinite"/>
               </circle>
             )}
 
             {/* core dot */}
             <circle cx={n.x} cy={n.y} r={dotR} fill={color}
-              filter="url(#node-glow)"
-              opacity={isPlanned ? 0.75 : 1}/>
+              filter={emphasize ? "url(#node-glow)" : undefined}
+              opacity={isPlanned ? (emphasize ? 0.9 : 0.55) : (emphasize ? 1 : 0.75)}/>
 
-            {/* label */}
-            {!poster && (!isPlanned || isActive) && (
-              <g transform={`translate(${n.x + ringR + 8}, ${n.y - 16})`}>
+            {/* label — only for the node(s) this gate activates, or the explicitly selected node */}
+            {showLabel && (
+              <g transform={`translate(${n.x + ringR + 8}, ${n.y - 16})`}
+                 style={{ transition: "opacity 400ms ease" }}>
                 <rect x="-4" y="-11" width={n.name.length * 6.8 + 10} height="30"
-                  fill="oklch(11% 0.010 250)" opacity={isActive ? 0.92 : 0.72}
-                  stroke={isActive ? color : "oklch(28% 0.010 245)"} strokeWidth="0.5"/>
+                  fill="oklch(11% 0.010 250)" opacity={isActive ? 0.92 : 0.82}
+                  stroke={color} strokeWidth={isActive ? 0.7 : 0.5}/>
                 <text fontFamily="var(--f-mono)" fontSize="9"
                   fill="oklch(62% 0.008 250)" letterSpacing="1">{n.id}</text>
                 <text y="13" fontFamily="var(--f-display)" fontSize="13"
-                  fill={isActive ? color : "oklch(95% 0.004 250)"}
-                  fontWeight="500">{n.name}</text>
+                  fill={color} fontWeight="500">{n.name}</text>
               </g>
             )}
           </g>
         );
       })}
+
+      {/* PHASE 5 GROUPED ANNOTATION — one compact summary instead of 6 stacked callouts.
+          Anchored to the visible phase-5 node centroid so it sits inside the coverage cluster. */}
+      {!poster && phase === 5 && (() => {
+        const p5 = nodesProj.filter((n, i) => n.phase === 5 && visibleSet.has(i));
+        if (!p5.length) return null;
+        const cx = p5.reduce((s, n) => s + n.x, 0) / p5.length;
+        const cy = p5.reduce((s, n) => s + n.y, 0) / p5.length;
+        const anchor = p5.reduce((best, n) => {
+          const d = Math.hypot(n.x - cx, n.y - cy);
+          return d < best.d ? { n, d } : best;
+        }, { n: p5[0], d: Infinity }).n;
+        const label = "Continental coverage lattice";
+        const sub   = `+${p5.length} corridor nodes · single-day ground radius`;
+        const w     = Math.max(label.length, sub.length) * 6.8 + 20;
+        return (
+          <g transform={`translate(${anchor.x + 28}, ${anchor.y - 38})`}
+             style={{ transition: "opacity 400ms ease" }}>
+            <line x1="-20" y1="38" x2="-4" y2="18"
+              stroke="oklch(82% 0.14 230)" strokeWidth="0.6" opacity="0.6"/>
+            <rect x="-4" y="-11" width={w} height="42"
+              fill="oklch(11% 0.010 250)" opacity="0.9"
+              stroke="oklch(82% 0.14 230)" strokeWidth="0.7"/>
+            <text fontFamily="var(--f-mono)" fontSize="9"
+              fill="oklch(62% 0.008 250)" letterSpacing="1.2">GATE 5 · ACTIVE</text>
+            <text y="13" fontFamily="var(--f-display)" fontSize="13"
+              fill="oklch(82% 0.14 230)" fontWeight="500">{label}</text>
+            <text y="26" fontFamily="var(--f-mono)" fontSize="9"
+              fill="oklch(70% 0.010 245)" letterSpacing="0.8">{sub}</text>
+          </g>
+        );
+      })()}
 
       {/* HUD CORNERS */}
       {!poster && (
