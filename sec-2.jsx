@@ -8,7 +8,7 @@ function Model() {
   return (
     <section className="sec-pad" id="model">
       <div className="shell">
-        <SecHead tag="03 · The Asgard Model" meta="Route · Integrate · Control"
+        <SecHead tag="04 · The Asgard Model" meta="Route · Integrate · Control"
           title="Three layers. One coordinated flow."
           lede="Launchbelt routes. Forges integrate and control. Suppliers execute. Together they form a single operating system that converts distributed capability into certified, traceable throughput."
         />
@@ -84,7 +84,7 @@ function UsExecution() {
   return (
     <section className="sec-pad" id="execution" style={{background: "var(--bg-base)"}}>
       <div className="shell">
-        <SecHead tag="04 · Production-Driven Execution Model" meta="Sequenced · Gated · Validated"
+        <SecHead tag="05 · Production-Driven Execution Model" meta="Sequenced · Gated · Validated"
           title="Physical scale will be earned through validated production flow."
           lede="This model defines how the platform scales. Execution progresses only after each layer is validated under real production conditions. Platform capability, supplier integration, and facility expansion are sequenced against operational proof, not projection."
         />
@@ -148,7 +148,7 @@ function WhyNow() {
   return (
     <section className="sec-pad" id="why-now">
       <div className="shell">
-        <SecHead tag="05 · Why Europe · Why Now" meta="Structural · Strategic · Time-bound"
+        <SecHead tag="06 · Why Europe · Why Now" meta="Structural · Strategic · Time-bound"
           title="The window is open. It will not remain open indefinitely."
           lede="A confluence of defense investment, sovereign-capability requirements, and manufacturing capacity gaps has created a time-bound opportunity to build coordinated industrial infrastructure. First-movers capture platform deployment. Others import capability from elsewhere."
         />

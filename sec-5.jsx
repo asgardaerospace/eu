@@ -146,6 +146,7 @@ function Footer() {
             <h5>Platform</h5>
             <ul>
               <li><a href="#overview">Overview</a></li>
+              <li><a href="#programflow">How it works</a></li>
               <li><a href="#model">Asgard model</a></li>
               <li><a href="#execution">Execution model</a></li>
               <li><a href="#facility">Facility model</a></li>

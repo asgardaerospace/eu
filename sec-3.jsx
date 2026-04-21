@@ -14,7 +14,7 @@ function Network() {
   return (
     <section className="sec-pad" id="network">
       <div className="shell">
-        <SecHead tag="06 · Continental Network Strategy" meta="Distributed · Gated Activation"
+        <SecHead tag="07 · Continental Network Strategy" meta="Distributed · Gated Activation"
           title="Distributed production. Controlled execution. A network, not a site."
           lede="The architecture is fixed; the locations are selected. Each node is a control point in a continental manufacturing system — a candidate anchor, Forge, or network node activated only when routing density, compliance continuity, and regional alignment clear the gate. Every major European industrial corridor resolves into one-day reach of a system node, regardless of which specific regions enter first."
         />
@@ -162,10 +162,17 @@ function ProgramFlow() {
   return (
     <section className="sec-pad" id="programflow" style={{background: "var(--bg-base)"}} ref={sectionRef}>
       <div className="shell">
-        <SecHead tag="07 · How It Works · Program Flow" meta="Intake → Launchbelt → Execute → Route → Converge → Deliver"
+        <div className="pfm-bridge">The gap is not capability. It is coordination. This is how the system executes.</div>
+        <SecHead tag="03 · How It Works · Program Flow" meta="Intake → Launchbelt → Execute → Route → Converge → Deliver"
           title="A live view of how a program moves through the continental network."
           lede="This is how a single aerospace program or part request moves through Asgard, from intake, through decomposition and distributed execution, through dynamic inter-node routing, through convergence at a Forge, to certified delivery. The continent is the factory floor."
         />
+
+        <div className="pfm-orient">
+          <div className="pfm-orient-item"><span className="pfm-orient-dot node"/>Nodes represent qualified manufacturing partners across Europe.</div>
+          <div className="pfm-orient-item"><span className="pfm-orient-dot forge"/>Forges act as controlled integration and certification points.</div>
+          <div className="pfm-orient-item"><span className="pfm-orient-dot lb"/>Launchbelt is the orchestration layer routing work across the network.</div>
+        </div>
 
         <div className="pfm-wrap">
           <div className="pfm-canvas">

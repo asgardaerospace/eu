@@ -57,9 +57,9 @@ function Nav() {
         </div>
         <div className="nav-links">
           <a href="#overview">Overview</a>
+          <a href="#programflow">How It Works</a>
           <a href="#model">Model</a>
           <a href="#network">Network</a>
-          <a href="#programflow">Program Flow</a>
           <a href="#regions">Regions</a>
           <a href="#roadmap">Roadmap</a>
           <a href="#kb">Knowledge Base</a>
