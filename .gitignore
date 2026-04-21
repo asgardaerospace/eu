@@ -10,3 +10,10 @@ Thumbs.db
 
 # Vercel local
 .vercel
+
+# Claude Code local state (harness config only is tracked)
+.claude/settings.local.json
+.claude/worktrees/
+
+# Scratch handoff copy — root files are canonical
+asgard-in-europe/

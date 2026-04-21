@@ -34,6 +34,7 @@
 
   <script type="text/babel" src="europe-map.jsx"></script>
   <script type="text/babel" src="data.jsx"></script>
+  <script type="text/babel" src="cinematic.jsx"></script>
   <script type="text/babel" src="sec-1.jsx"></script>
   <script type="text/babel" src="sec-2.jsx"></script>
   <script type="text/babel" src="sec-3.jsx"></script>
@@ -41,6 +42,61 @@
   <script type="text/babel" src="sec-5.jsx"></script>
 
   <script type="text/babel">
+    function Intro({ onDismiss }) {
+      const [fading, setFading] = React.useState(false);
+      const dismiss = React.useCallback(() => {
+        if (fading) return;
+        setFading(true);
+        setTimeout(onDismiss, 650);
+      }, [fading, onDismiss]);
+
+      return (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 1000,
+            background: "var(--bg-void)",
+            transition: "opacity 0.65s ease",
+            opacity: fading ? 0 : 1,
+            pointerEvents: fading ? "none" : "auto",
+          }}
+        >
+          <AsgardSequence
+            autoPlay
+            loop={false}
+            fill
+            onComplete={dismiss}
+            onSkip={dismiss}
+          />
+        </div>
+      );
+    }
+
+    function Root() {
+      const [introOpen, setIntroOpen] = React.useState(() => {
+        if (typeof window === "undefined") return true;
+        if (location.hash && location.hash !== "#top") return false;
+        if (new URLSearchParams(location.search).has("skipIntro")) return false;
+        return true;
+      });
+
+      React.useEffect(() => {
+        if (introOpen) {
+          const prev = document.body.style.overflow;
+          document.body.style.overflow = "hidden";
+          return () => { document.body.style.overflow = prev; };
+        }
+      }, [introOpen]);
+
+      return (
+        <>
+          <App />
+          {introOpen && <Intro onDismiss={() => setIntroOpen(false)} />}
+        </>
+      );
+    }
+
     function App() {
       return (
         <>
@@ -68,7 +124,7 @@
     }
 
     const root = ReactDOM.createRoot(document.getElementById("root"));
-    root.render(<App />);
+    root.render(<Root />);
   </script>
 </body>
 </html>
