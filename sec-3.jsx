@@ -413,15 +413,15 @@ function Facility() {
             <p>
               {size === "initial"
                 ? "The initial footprint establishes operational presence, validates workflows, and supports early program execution. A lean, high-skill convergence node — integration-focused, not mass production — with secure production environments and initial composites capability."
-                : "The scaled footprint expands integration capacity, adds multi-program cells, and brings full inspection and certification infrastructure online. Capacity benchmark of 120 to 150 personnel and €90M to €115M of annual throughput per node."}
+                : "The scaled footprint expands integration capacity, adds multi-program cells, and brings full inspection and certification infrastructure online. Capacity benchmark of 75 to 150 personnel and €55M to €72M of annual throughput per Forge."}
             </p>
             <div className="stats">
               <div className="stat">
-                <div className="n">{size === "initial" ? "40 to 80" : "120 to 150"}</div>
-                <div className="l">{size === "initial" ? "Initial operational team" : "Scaled facility team"}</div>
+                <div className="n">{size === "initial" ? "25 to 60" : "75 to 150"}</div>
+                <div className="l">{size === "initial" ? "Initial operational team" : "Scaled Forge team"}</div>
               </div>
               <div className="stat">
-                <div className="n">{size === "initial" ? "Up to €23M" : "€90 to 115M"}</div>
+                <div className="n">{size === "initial" ? "Up to €18M" : "€55 to 72M"}</div>
                 <div className="l">Annual throughput</div>
               </div>
             </div>

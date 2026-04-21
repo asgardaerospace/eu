@@ -116,7 +116,7 @@ const KB_CATEGORIES = [
     items: [
       { q: "Facility footprint and scaling model", a: [
         "Initial deployment is sized at ≈ 2,800 to 4,600 m², supporting integration, secure production environments, and initial composites and thermoplastics capability.",
-        "Scaled facilities reach ≈ 5,600 to 9,300 m² with expanded integration capacity, multi-program production cells, and full inspection and certification infrastructure. Capacity benchmark: 150 to 250 employees and €90M to €115M of annual throughput per scaled node."
+        "Scaled facilities reach ≈ 5,600 to 9,300 m² with expanded integration capacity, multi-program production cells, and full inspection and certification infrastructure. Capacity benchmark: 75 to 150 personnel and €55M to €72M of annual throughput per Forge."
       ]},
       { q: "Functional zones", a: [
         "Integration and assembly, composites and thermoplastics, machining and fabrication support, inspection and metrology, and secure production areas. Each zone is defined with explicit compliance and access controls rather than repurposed generic floor space."
@@ -144,13 +144,13 @@ const KB_CATEGORIES = [
     key: "economic", label: "Economic Impact", meta: "DOC-04",
     items: [
       { q: "Direct employment", a: [
-        "Initial team of 20 to 35 personnel, scaling to 150 to 250 employees per fully scaled facility. Roles are concentrated in advanced-manufacturing disciplines: aerospace and manufacturing engineers, skilled technicians, quality and compliance specialists, and supply chain operations."
+        "Headquarters operates as a lean European command layer of 20 to 35 personnel covering program routing, network orchestration, compliance oversight, and customer interface. Each Forge node employs 75 to 150 high-skill technical personnel in integration, composites, machining support, and inspection and compliance."
       ]},
       { q: "Production throughput", a: [
-        "Each scaled facility targets €90M to €115M in annual aerospace production output, driven by high-mix, low-volume manufacturing, multi-program execution, and integration of distributed supplier production."
+        "Each Forge targets €55M to €72M in annual aerospace production output, driven by high-mix, multi-program manufacturing and the integration of distributed supplier output into certified assemblies."
       ]},
-      { q: "Multiplier effect", a: [
-        "The majority of economic value is generated through activation of the regional manufacturing base: increased SME utilization, attraction of new aerospace programs, workforce development, and durable industrial positioning."
+      { q: "Regional industrial activation", a: [
+        "The primary economic impact is generated through activation of the regional supplier base: SMEs gain access to aerospace and defense programs, existing manufacturing capacity is utilized more efficiently, revenue stability improves across the industrial base, and regional capability shifts toward higher-value production."
       ]}
     ]
   },

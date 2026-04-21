@@ -137,44 +137,78 @@ function Impact() {
   return (
     <section className="sec-pad" id="impact" style={{background: "var(--bg-base)"}}>
       <div className="shell">
-        <SecHead tag="12 · Economic Impact" meta="Direct · Indirect · Systemic"
+        <SecHead tag="12 · Economic Impact" meta="Workforce · Throughput · Activation"
           title="A force multiplier, not a single-site employer."
-          lede="The platform delivers measurable direct impact at each node, but the majority of economic value is generated through activation of the existing regional manufacturing base. Utilization rises, SMEs scale, and the regional ecosystem captures programs that previously bypassed it."
+          lede="The platform delivers measurable direct impact at each node, but the primary economic value is generated through activation of the existing regional manufacturing base. A lean command layer orchestrates distributed, high-skill production nodes."
         />
 
         <div className="impact">
           <div className="impact-cell">
-            <div className="coord">DIRECT · Employment</div>
-            <div className="big">20 to 35<small>launch</small></div>
-            <div className="big" style={{color: "var(--accent)"}}>150 to 250<small>scaled</small></div>
-            <div className="unit">Per facility · high-skill technical roles</div>
-            <p className="narr">Engineers, technicians, compliance specialists, and operations personnel concentrated in advanced-manufacturing disciplines. Long-term, non-transient, career-grade employment.</p>
+            <div className="coord">WORKFORCE · Distributed Model</div>
+
+            <div style={{display: "flex", flexDirection: "column", gap: 6, marginTop: 4}}>
+              <div style={{fontFamily: "var(--f-mono)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text-dim)"}}>Headquarters · European command layer</div>
+              <div style={{fontFamily: "var(--f-display)", fontSize: "clamp(40px, 4.4vw, 60px)", color: "var(--text-hi)", fontWeight: 500, letterSpacing: "-0.03em", lineHeight: 0.9}}>20–35<small style={{fontFamily: "var(--f-mono)", fontSize: 12, color: "var(--text-dim)", letterSpacing: 0, marginLeft: 6}}>personnel</small></div>
+              <div style={{fontSize: 12.5, color: "var(--text-dim)", lineHeight: 1.55}}>Program routing · network orchestration · compliance oversight · customer interface.</div>
+            </div>
+
+            <div style={{height: 1, background: "var(--line)", margin: "14px 0 4px"}} />
+
+            <div style={{display: "flex", flexDirection: "column", gap: 6}}>
+              <div style={{fontFamily: "var(--f-mono)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--accent)"}}>Forge nodes · per facility</div>
+              <div style={{fontFamily: "var(--f-display)", fontSize: "clamp(48px, 5.2vw, 72px)", color: "var(--text-hi)", fontWeight: 500, letterSpacing: "-0.03em", lineHeight: 0.9}}>75–150<small style={{fontFamily: "var(--f-mono)", fontSize: 12, color: "var(--text-dim)", letterSpacing: 0, marginLeft: 6}}>per Forge</small></div>
+              <div style={{fontSize: 12.5, color: "var(--text-dim)", lineHeight: 1.55}}>High-skill technical workforce: integration · composites · machining support · inspection and compliance.</div>
+            </div>
+
+            <p className="narr" style={{marginTop: 18, fontStyle: "italic"}}>Lean command layer with distributed, high-skill production nodes.</p>
           </div>
+
           <div className="impact-cell">
-            <div className="coord">DIRECT · Throughput</div>
-            <div className="big">€90 to 115<small>M / yr</small></div>
-            <div className="unit">Annual aerospace production output · scaled facility</div>
-            <p className="narr">High-mix, low-volume manufacturing. Multi-program execution. Integration of distributed supplier production under a unified execution layer.</p>
+            <div className="coord">DIRECT · Throughput per Forge</div>
+            <div className="big">€55–72<small>M / yr</small></div>
+            <div className="unit">Annual aerospace production · per Forge</div>
+            <p className="narr">High-mix, multi-program aerospace production. Integration of distributed supplier output into certified assemblies under a unified execution layer.</p>
           </div>
+
           <div className="impact-cell">
-            <div className="coord">INDIRECT · Multiplier</div>
-            <div className="big">Majority<small>of total value</small></div>
-            <div className="unit">Generated via regional SME activation</div>
-            <p className="narr">Most economic value is generated through activation of the regional supplier base. SMEs gain consistent aerospace flow, improved utilization, and access to programs previously out of reach.</p>
+            <div className="coord">INDIRECT · Regional Industrial Activation</div>
+            <div style={{fontFamily: "var(--f-display)", fontSize: "clamp(24px, 2.1vw, 28px)", color: "var(--text-hi)", fontWeight: 500, letterSpacing: "-0.015em", lineHeight: 1.2, marginTop: 2}}>
+              The primary economic impact is generated through activation of the regional supplier base.
+            </div>
+            <ul style={{listStyle: "none", padding: 0, margin: "14px 0 0", display: "flex", flexDirection: "column", gap: 8}}>
+              {[
+                "SMEs gain access to aerospace and defense programs",
+                "Existing manufacturing capacity is utilized more efficiently",
+                "Revenue stability improves across the industrial base",
+                "Regional capability shifts toward higher-value production",
+              ].map((t) => (
+                <li key={t} style={{fontSize: 13.5, color: "var(--text-dim)", lineHeight: 1.5, paddingLeft: 14, position: "relative"}}>
+                  <span style={{position: "absolute", left: 0, top: 0, color: "var(--accent)"}}>·</span>{t}
+                </li>
+              ))}
+            </ul>
+            <p className="narr" style={{marginTop: 18, fontStyle: "italic"}}>For every Forge, dozens of regional suppliers are integrated into continuous aerospace production flow.</p>
           </div>
         </div>
 
-        <div style={{marginTop: 0, borderLeft: "1px solid var(--line)", borderRight: "1px solid var(--line)", borderBottom: "1px solid var(--line)", padding: "32px 40px", display: "grid", gridTemplateColumns: "240px 1fr", gap: 32}}>
-          <div className="coord">Systemic outcomes</div>
-          <div style={{display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 28}}>
+        <div style={{marginTop: 48, borderTop: "1px solid var(--line)", paddingTop: 32}}>
+          <div style={{display: "flex", alignItems: "baseline", gap: 16, marginBottom: 28}}>
+            <div className="coord">13 · System-Level Economic Impact</div>
+            <div style={{fontFamily: "var(--f-mono)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text-dim)"}}>Why governments invest</div>
+          </div>
+          <div style={{fontFamily: "var(--f-display)", fontSize: "clamp(22px, 2vw, 28px)", color: "var(--text-hi)", fontWeight: 500, letterSpacing: "-0.015em", lineHeight: 1.25, maxWidth: 880, marginBottom: 36}}>
+            Beyond direct employment and throughput, the platform reshapes the regional industrial base — raising utilization, building the workforce pipeline, and attracting programs that previously bypassed the region.
+          </div>
+          <div style={{display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 0, border: "1px solid var(--line)"}}>
             {[
-              ["Supplier utilization", "Aggregated demand across multiple programs raises utilization and stabilizes revenue across the regional industrial base."],
-              ["Workforce pipeline", "Structured partnerships with universities and technical institutes convert regional talent into advanced-manufacturing capability."],
-              ["Program attraction", "A coordinated manufacturing capability makes the region materially more competitive for aerospace and defense program placement."],
-            ].map(([h, d]) => (
-              <div key={h}>
-                <div style={{fontFamily: "var(--f-display)", fontSize: 15, fontWeight: 500, color: "var(--text-hi)", letterSpacing: "-0.005em", marginBottom: 8}}>{h}</div>
-                <div style={{fontSize: 13, color: "var(--text-dim)", lineHeight: 1.5}}>{d}</div>
+              ["Supplier Utilization", "Aggregated demand across multiple programs increases utilization across existing manufacturing infrastructure, stabilizing revenue and reducing idle capacity."],
+              ["Workforce Development", "Structured partnerships with universities and technical institutes create a pipeline of engineers and technicians aligned with advanced manufacturing requirements."],
+              ["Program Attraction", "A coordinated manufacturing capability increases regional competitiveness for aerospace and defense program placement, driving long-term industrial investment."],
+            ].map(([h, d], i) => (
+              <div key={h} style={{padding: "28px 28px 32px", borderRight: i < 2 ? "1px solid var(--line)" : 0, display: "flex", flexDirection: "column", gap: 10}}>
+                <div style={{fontFamily: "var(--f-mono)", fontSize: 10, letterSpacing: "0.16em", textTransform: "uppercase", color: "var(--text-dim)"}}>{`0${i+1}`}</div>
+                <div style={{fontFamily: "var(--f-display)", fontSize: 22, fontWeight: 500, color: "var(--text-hi)", letterSpacing: "-0.01em"}}>{h}</div>
+                <div style={{fontSize: 13.5, color: "var(--text-dim)", lineHeight: 1.55}}>{d}</div>
               </div>
             ))}
           </div>
