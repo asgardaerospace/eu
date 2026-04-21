@@ -132,7 +132,10 @@ function Footer() {
   return (
     <footer className="ftr">
       <div className="shell">
-        <h3>Asgard Aerospace<br/>Europe.</h3>
+        <div className="ftr-lockup">
+          <img className="ftr-mark" src="assets/asgard-mark-256.png" alt="Asgard Aerospace"/>
+          <h3>Asgard Aerospace<br/>Europe.</h3>
+        </div>
         <div className="ftr-grid">
           <div className="ftr-col">
             <h5>Motto</h5>

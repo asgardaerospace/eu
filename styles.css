@@ -80,7 +80,7 @@ section { position: relative; }
   gap: 24px;
 }
 .nav-brand { display: flex; align-items: center; gap: 14px; }
-.nav-brand .mark { width: 26px; height: 26px; }
+.nav-brand .mark { width: 32px; height: 32px; object-fit: contain; display: block; }
 .nav-brand .name {
   font-family: var(--f-display);
   font-weight: 600;
@@ -389,6 +389,8 @@ section { position: relative; }
   padding: 80px 0 32px;
   margin-top: 120px;
 }
+.ftr-lockup { display: flex; align-items: center; gap: 24px; }
+.ftr-mark { width: 88px; height: 88px; object-fit: contain; display: block; flex-shrink: 0; }
 .ftr h3 {
   font-family: var(--f-display);
   font-weight: 500;
@@ -397,6 +399,7 @@ section { position: relative; }
   color: var(--text-hi);
   max-width: 22ch;
   line-height: 1;
+  margin: 0;
 }
 .ftr-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; margin-top: 60px; }
 .ftr-col h5 { font-family: var(--f-mono); font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.14em; margin-bottom: 16px; }

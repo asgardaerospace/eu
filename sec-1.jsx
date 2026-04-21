@@ -45,11 +45,7 @@ function Nav() {
     <nav className="nav">
       <div className="nav-inner">
         <div className="nav-brand">
-          <svg className="mark" viewBox="0 0 40 40" fill="none">
-            <path d="M20 3 L34 34 L6 34 Z" stroke="var(--text-hi)" strokeWidth="1.4"/>
-            <path d="M20 14 L28 30 L12 30 Z" fill="var(--accent)" opacity="0.9"/>
-            <circle cx="20" cy="22" r="1.6" fill="var(--bg-void)"/>
-          </svg>
+          <img className="mark" src="assets/asgard-mark-64.png" alt="Asgard Aerospace"/>
           <div>
             <div className="name">Asgard Aerospace</div>
           </div>
