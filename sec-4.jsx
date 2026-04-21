@@ -69,48 +69,58 @@ function Security() {
         <div className="compliance">
           <div className="comp-viz">
             <div className="coord" style={{marginBottom: 24}}>Compliance architecture · conceptual</div>
-            <svg viewBox="0 0 400 360" style={{width: "100%"}}>
-              <defs>
-                <linearGradient id="compG" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="oklch(72% 0.14 235)" stopOpacity="0.4"/>
-                  <stop offset="100%" stopColor="oklch(72% 0.14 235)" stopOpacity="0"/>
-                </linearGradient>
-              </defs>
+            <svg viewBox="0 0 400 440" style={{width: "100%"}}>
               {[
-                {y: 30, w: 360, label: "PROGRAM · CONFIGURATION CONTROL"},
-                {y: 90, w: 320, label: "DIGITAL TRAVELERS · INSPECTION GATES"},
-                {y: 150, w: 280, label: "ROUTED PRODUCTION · MULTI-NODE"},
-                {y: 210, w: 240, label: "SUPPLIER COMPLIANCE · AS9100 / EN 9100"},
-                {y: 270, w: 200, label: "SECURE CELLS · ITAR / CUI AWARE"},
-              ].map((l, i) => (
-                <g key={i}>
-                  <rect x={(400 - l.w) / 2} y={l.y} width={l.w} height={42}
-                    fill="var(--bg-panel)" stroke="var(--accent)" strokeWidth="0.8" opacity={1 - i * 0.05}/>
-                  <text x="200" y={l.y + 26} textAnchor="middle"
-                    fontFamily="var(--f-mono)" fontSize="10" fill="var(--text-hi)" letterSpacing="1.4">{l.label}</text>
-                </g>
-              ))}
-              <g stroke="var(--accent)" strokeWidth="0.5" opacity="0.5" strokeDasharray="3 3">
-                <line x1="20" y1="51" x2="20" y2="291"/>
-                <line x1="380" y1="51" x2="380" y2="291"/>
-              </g>
-              <text x="12" y="340" fontFamily="var(--f-mono)" fontSize="9" fill="var(--text-faint)" letterSpacing="1.4">CONTINUOUS AUDIT PATH · TRACEABILITY PRESERVED ACROSS NODES</text>
+                {label: "Program Control", sub: null},
+                {label: "Digital Travelers", sub: "Inspection Gates"},
+                {label: "Routed Production", sub: "Multi-Node"},
+                {label: "Supplier Compliance", sub: "AS9100 / EN 9100"},
+                {label: "Secure Cells", sub: "ITAR / CUI"},
+              ].map((l, i) => {
+                const boxH = 64;
+                const gap = 20;
+                const y = 20 + i * (boxH + gap);
+                const w = 320;
+                const x = (400 - w) / 2;
+                return (
+                  <g key={i}>
+                    {i > 0 && (
+                      <line x1="200" y1={y - gap} x2="200" y2={y}
+                        stroke="var(--accent)" strokeWidth="0.6" opacity="0.55" strokeDasharray="2 3"/>
+                    )}
+                    <rect x={x} y={y} width={w} height={boxH}
+                      fill="var(--bg-panel)" stroke="var(--accent)" strokeWidth="0.8"/>
+                    <text x="200" y={l.sub ? y + 28 : y + boxH / 2 + 4} textAnchor="middle"
+                      fontFamily="var(--f-display)" fontSize="15" fontWeight="500" fill="var(--text-hi)" letterSpacing="0.2">
+                      {l.label}
+                    </text>
+                    {l.sub && (
+                      <text x="200" y={y + 48} textAnchor="middle"
+                        fontFamily="var(--f-mono)" fontSize="9" fill="var(--text-faint)" letterSpacing="1.4">
+                        {l.sub.toUpperCase()}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
+              <text x="40" y="430" fontFamily="var(--f-mono)" fontSize="9" fill="var(--text-faint)" letterSpacing="1.4">
+                CONTINUOUS AUDIT PATH · TRACEABILITY PRESERVED ACROSS NODES
+              </text>
             </svg>
           </div>
           <div className="comp-list">
             {[
-              ["AS9100", "Aerospace quality management alignment across workflows and supplier integration.", "ACTIVE", "a"],
-              ["EN 9100", "European aerospace certification alignment as the entity operationalizes.", "PHASED", "p"],
-              ["ITAR / EAR", "Export-control aware operational logic for defense-aligned programs.", "ACTIVE", "a"],
-              ["CUI Handling", "Controlled Unclassified Information handling protocols for sensitive work.", "ACTIVE", "a"],
-              ["Digital Travelers", "Every unit carries its documentation, inspection record, and configuration state.", "EMBEDDED", "a"],
-              ["Secure Cells", "Physically and digitally segmented cells for IP-sensitive and defense programs.", "DESIGNED", "a"],
-              ["Audit Logging", "Continuous monitoring with role-based access across systems and data.", "EMBEDDED", "a"],
-            ].map(([std, desc, status, kind]) => (
+              ["AS9100", "Quality management alignment across workflows and supplier integration."],
+              ["EN 9100", "European certification alignment as the entity operationalizes."],
+              ["ITAR / EAR", "Export-control-aware execution for defense-aligned programs."],
+              ["CUI Handling", "Controlled handling protocols for sensitive program data."],
+              ["Digital Travelers", "Each unit carries its configuration, inspection record, and traceability data."],
+              ["Secure Cells", "Segmented environments for IP-sensitive and defense programs."],
+              ["Audit Logging", "Continuous monitoring across systems, workflows, and access layers."],
+            ].map(([std, desc]) => (
               <div key={std} className="comp-row">
                 <div className="std">{std}</div>
                 <div className="desc">{desc}</div>
-                <div className={"status " + kind}>● {status}</div>
               </div>
             ))}
           </div>

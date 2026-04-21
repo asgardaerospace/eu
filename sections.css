@@ -572,17 +572,14 @@
 .comp-viz { padding: 40px; background: var(--bg-base); position: relative; }
 .comp-list { padding: 40px; background: var(--bg-panel); border-left: 1px solid var(--line); }
 .comp-row {
-  display: grid; grid-template-columns: 160px 1fr auto; gap: 20px; align-items: center;
-  padding: 14px 0; border-bottom: 1px solid var(--line);
+  display: grid; grid-template-columns: 160px 1fr; gap: 24px; align-items: baseline;
+  padding: 16px 0; border-bottom: 1px solid var(--line);
 }
 .comp-row:last-child { border-bottom: 0; }
 .comp-row .std { font-family: var(--f-mono); font-size: 12px; color: var(--text-hi); letter-spacing: 0.04em; }
-.comp-row .desc { font-size: 13px; color: var(--text-dim); line-height: 1.45; }
-.comp-row .status { font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; }
-.comp-row .status.a { color: var(--accent); }
-.comp-row .status.p { color: var(--signal); }
+.comp-row .desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
 
-@media (max-width: 900px) { .compliance { grid-template-columns: 1fr; } .comp-list { border-left: 0; border-top: 1px solid var(--line); } .comp-row { grid-template-columns: 1fr auto; } .comp-row .desc { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .compliance { grid-template-columns: 1fr; } .comp-list { border-left: 0; border-top: 1px solid var(--line); } .comp-row { grid-template-columns: 1fr; gap: 6px; } }
 
 /* ---- Economic impact ---- */
 .impact { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--line); margin-top: 40px; }
